@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <title>{{ page.title }}</title>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <p>
+			{{ page.title }} - published on {{ page.meta['date'] }}
+			<a href="{{ url_for('home') }}">
+    		<button type="button" class="btn btn-primary btn-sm">Go back to Home</button>
+			</a>
+		</p>
+		{{ page.html | safe }}
+</div>
+{% endblock %}

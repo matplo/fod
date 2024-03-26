@@ -5,13 +5,33 @@ from flask import (
     jsonify,
     send_from_directory,
     request,
+    render_template,
 )
+
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
+from werkzeug.middleware.proxy_fix import ProxyFix
 
+from flask_bootstrap import Bootstrap
+from flask_flatpages import FlatPages
+
+import logging
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
+bs = Bootstrap(app)
+flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
+print(app.config)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+# Set up logging
+handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=0)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.addHandler(handler)
+
+
 db = SQLAlchemy(app)
 
 
@@ -28,7 +48,45 @@ class User(db.Model):
 
 @app.route("/")
 def hello_world():
-    return jsonify(hello="world")
+    logger.info('[i] Home page accessed')
+    logger.info('[i] App CONFIG:')
+    logger.info(str(app.config))
+    return render_template('home.html', _external=False)
+    # return jsonify(hello="world")
+
+
+@app.route("/home")
+def home():
+    logger.info('[i] Home page accessed')
+    logger.info('[i] App CONFIG:')
+    logger.info(str(app.config))
+    return render_template('home.html', _external=False)
+    # return jsonify(hello="world")
+
+
+@app.route('/page/<path:path>')
+def page(path):
+    logger.info(f'[i] trying to access path: {path}')
+    page = flatpages.get_or_404(path)
+    return render_template('page.html', page=page, _external=False)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # note that we set the 404 status explicitly
+    return render_template('404.html', _external=False), 404
+
+
+@app.errorhandler(500)
+def error_500(e):
+    # note that we set the 500 status explicitly
+    return render_template('500.html', _external=False), 500
+
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # pass the error to the template
+    return render_template('error.html', error=e, _external=False), 500
 
 
 @app.route("/static/<path:filename>")
