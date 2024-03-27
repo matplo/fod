@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block header %}
+		<title>{{ page.title }}</title>
+{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+
+<div class="container">
+		{{ page.html | safe }}
+</div>
+
+{% if page.meta['result'] %}
+<div class="container">
+	{{ result | safe }}
+</div>
+{% endif %}
+
+{% include "footer.html" %}
+
+{% endblock %}

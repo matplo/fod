@@ -19,6 +19,7 @@ from flask_bootstrap import Bootstrap
 from flask_flatpages import FlatPages
 
 from .forms import MyForm
+from .process_input import process_input
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -69,8 +70,17 @@ def form(path):
     if form.validate_on_submit():
         text = form.text.data
         flash('Form submitted successfully.')
-        return redirect(url_for('page', path=text))
+        return redirect(url_for('result', q=text))
     return render_template(template, page=page, pages=flatpages, form=form, _external=False)
+
+
+@app.route('/result', methods=['GET', 'POST'])
+def result(path='result'):
+    page = flatpages.get_or_404(path)
+    template = page.meta.get('template', 'page.html')
+    variable = request.args.get('q', None)
+    result = process_input(variable)
+    return render_template(template, page=page, pages=flatpages, result=result, _external=False)
 
 
 @app.route("/")
