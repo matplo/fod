@@ -46,47 +46,35 @@ class User(db.Model):
         self.email = email
 
 
-@app.route("/")
-def hello_world():
-    logger.info('[i] Home page accessed')
-    logger.info('[i] App CONFIG:')
-    logger.info(str(app.config))
-    return render_template('home.html', _external=False)
-    # return jsonify(hello="world")
-
-
-@app.route("/home")
-def home():
-    logger.info('[i] Home page accessed')
-    logger.info('[i] App CONFIG:')
-    logger.info(str(app.config))
-    return render_template('home.html', _external=False)
-    # return jsonify(hello="world")
-
-
-@app.route('/page/<path:path>')
+@app.route('/<path:path>')
+@app.route('/<path:path>/')
 def page(path):
-    logger.info(f'[i] trying to access path: {path}')
     page = flatpages.get_or_404(path)
-    return render_template('page.html', page=page, _external=False)
+    template = page.meta.get('template', 'page.html')
+    return render_template(template, page=page, pages=flatpages, _external=False)
+
+
+@app.route("/")
+def default_page():
+    return page('home')
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     # note that we set the 404 status explicitly
-    return render_template('404.html', _external=False), 404
+    return render_template('404.html', error=e, pages=flatpages, _external=False), 404
 
 
 @app.errorhandler(500)
 def error_500(e):
     # note that we set the 500 status explicitly
-    return render_template('500.html', _external=False), 500
+    return render_template('500.html', error=e, pages=flatpages, _external=False), 500
 
 
 @app.errorhandler(Exception)
 def handle_exception(e):
     # pass the error to the template
-    return render_template('error.html', error=e, _external=False), 500
+    return render_template('error.html', error=e, pages=flatpages, _external=False), 500
 
 
 @app.route("/static/<path:filename>")

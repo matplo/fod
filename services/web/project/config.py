@@ -19,4 +19,4 @@ class Config(object):
             'linenums': True
         }
     }
-    # SERVER_NAME = 'localhost:1337'
+    # SERVER_NAME = 'localhost:1337' - not needed with ProxyFix
