@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block header %}
+		<title>{{ page.title }}</title>
+{% endblock %}
+
+{% block content %}
+{% include "navbar.html" %}
+
+<div class="container">
+		{{ page.html | safe }}
+</div>
+
+{% if page.meta['form'] %}
+<div class="container">
+<form method="POST">
+	{{ form.hidden_tag() }}
+	{{ form.name.label }} {{ form.name(class="form-control") }}
+	<!-- Add more fields as needed -->
+	{{ form.submit(class="btn btn-primary") }}
+</form>
+</div>
+{% endif %}
+
+{% include "footer.html" %}
+
+{% endblock %}

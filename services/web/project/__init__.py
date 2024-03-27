@@ -6,6 +6,9 @@ from flask import (
     send_from_directory,
     request,
     render_template,
+    flash,
+    redirect,
+    url_for,
 )
 
 from flask_sqlalchemy import SQLAlchemy
@@ -15,10 +18,13 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_bootstrap import Bootstrap
 from flask_flatpages import FlatPages
 
+from .forms import MyForm
+
 import logging
 from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
+app.debug = True
 bs = Bootstrap(app)
 flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
@@ -46,12 +52,24 @@ class User(db.Model):
         self.email = email
 
 
-@app.route('/<path:path>')
 @app.route('/<path:path>/')
 def page(path):
     page = flatpages.get_or_404(path)
+    if page.meta.get('form', None) == 'True':
+        return redirect(url_for('form', path=path))
     template = page.meta.get('template', 'page.html')
     return render_template(template, page=page, pages=flatpages, _external=False)
+
+
+@app.route('/form/<path:path>/', methods=['GET', 'POST'])
+def form(path):
+    page = flatpages.get_or_404(path)
+    template = page.meta.get('template', 'page.html')
+    form = MyForm()
+    if form.validate_on_submit():
+        flash('Form submitted successfully.')
+        return redirect(url_for('page', path='home'))
+    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
 
 
 @app.route("/")
@@ -69,6 +87,12 @@ def page_not_found(e):
 def error_500(e):
     # note that we set the 500 status explicitly
     return render_template('500.html', error=e, pages=flatpages, _external=False), 500
+
+
+@app.errorhandler(502)
+def error_502(e):
+    # note that we set the 502 status explicitly
+    return render_template('502.html', error=e, pages=flatpages, _external=False), 502
 
 
 @app.errorhandler(Exception)

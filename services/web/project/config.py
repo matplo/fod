@@ -19,4 +19,5 @@ class Config(object):
             'linenums': True
         }
     }
+    SECRET_KEY = 'TEST_APP_SECRET_KEY'
     # SERVER_NAME = 'localhost:1337' - not needed with ProxyFix
