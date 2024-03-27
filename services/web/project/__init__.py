@@ -67,8 +67,9 @@ def form(path):
     template = page.meta.get('template', 'page.html')
     form = MyForm()
     if form.validate_on_submit():
+        text = form.text.data
         flash('Form submitted successfully.')
-        return redirect(url_for('page', path='home'))
+        return redirect(url_for('page', path=text))
     return render_template(template, page=page, pages=flatpages, form=form, _external=False)
 
 

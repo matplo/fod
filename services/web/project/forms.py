@@ -4,5 +4,5 @@ from wtforms.validators import DataRequired
 
 
 class MyForm(FlaskForm):
-    name = StringField('Name', validators=[DataRequired()])
+    text = StringField('Text', validators=[DataRequired()])
     submit = SubmitField('Submit')
