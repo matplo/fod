@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% include "navbar.html" %}
+<div class="container">
+    <h1>Forbidden</h1>
+    <p>Sorry, the page you are looking will not be served.</p>
+		<p> {{error}} </p>
+</div>
+{% endblock %}
