@@ -26,6 +26,9 @@ def add_user(username, email, password, active=True):
     }
 
     users = load_users()
+    if username in [user['username'] for user in users]:
+        print('User already exists. Use update action to change password.')
+        return
     users.append(new_user)
     save_users(users)
 

@@ -21,9 +21,7 @@ from flask_flatpages import FlatPages
 from flask_login import (
     LoginManager,
     UserMixin,
-)
-
-from flask_login import (
+    current_user,
     login_user,
     logout_user,
     login_required,
@@ -94,7 +92,7 @@ def login():
             return redirect(url_for('result', q='login successful'))
         else:
             return redirect(url_for('result', q='login failed'))
-    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
+    return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
 
 
 @app.route('/logout')
@@ -110,7 +108,7 @@ def page(path):
     if page.meta.get('form', None) == 'True':
         return redirect(url_for('form', path=path))
     template = page.meta.get('template', 'page.html')
-    return render_template(template, page=page, pages=flatpages, _external=False)
+    return render_template(template, page=page, pages=flatpages, user=current_user, _external=False)
 
 
 @app.route('/form/<path:path>/', methods=['GET', 'POST'])
@@ -123,7 +121,7 @@ def form(path):
         text = form.text.data
         flash('Form submitted successfully.')
         return redirect(url_for('result', q=text))
-    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
+    return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
 
 
 @app.route('/result', methods=['GET', 'POST'])
@@ -132,7 +130,7 @@ def result(path='result'):
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
     result = process_input(variable)
-    return render_template(template, page=page, pages=flatpages, result=result, _external=False)
+    return render_template(template, page=page, pages=flatpages, user=current_user, result=result, _external=False)
 
 
 @app.route("/")
@@ -145,7 +143,7 @@ def handle_exception(e):
     # get the error number
     error_number = getattr(e, 'code', 500)  # default to 500 if no 'code' attribute
     # pass the error to the template
-    return render_template('error.html', error=e, error_number=error_number, pages=flatpages, _external=False), error_number
+    return render_template('error.html', error=e, error_number=error_number, pages=flatpages, user=current_user, _external=False), error_number
 
 
 @app.route("/static/<path:filename>")

@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile.prod
     command: gunicorn --bind 0.0.0.0:5000 manage:app
     volumes:
+      - ./users.yaml:/home/app/web/users.yaml  # new line
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
       - pages_volume:/home/app/web/project/pages

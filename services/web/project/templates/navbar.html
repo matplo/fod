@@ -16,7 +16,11 @@
       {% endfor %}
     </ul>
     <ul class="nav navbar-nav ml-auto justify-content-end">
+      {% if current_user.is_authenticated %}
+      <li> <a class="nav-link" href="{{ url_for('logout') }}">Logout [{{ user.username }}] </a> </li>
+      {% else %}
       <li> <a class="nav-link" href="{{ url_for('login') }}">Login</a> </li>
+      {% endif %}
     </ul>
   </div>
 	</nav>
