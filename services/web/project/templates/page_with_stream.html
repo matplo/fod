@@ -1,0 +1,41 @@
+{% extends "page.html" %}
+
+{% block content %}
+
+<div class="container">
+		{{ page.html | safe }}
+</div>
+
+{% if page.meta['stream'] %}
+<div class="container">
+		<h2>Input:</h2>
+		<pre id="input">{{ exec }}</pre>
+    <h2>Output:</h2>
+    <pre id="output"></pre>
+</div>
+{% endif %}
+
+{% include "footer.html" %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    const outputElement = document.getElementById('output');
+
+    // Establish a connection to the Flask endpoint streaming the output
+    const eventSource = new EventSource( '{{ exec }}' );
+
+    eventSource.onmessage = function(event) {
+        // Append each line of output to the <pre> element
+        outputElement.textContent += event.data + '\n';
+    };
+
+    eventSource.onerror = function(event) {
+        // Handle any errors or close the connection when the script finishes
+				console.error("EventSource failed:", event);
+        eventSource.close();
+    };
+</script>
+{% endblock %}
