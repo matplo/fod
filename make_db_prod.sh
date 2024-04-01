@@ -13,6 +13,6 @@ docker-compose exec db psql --username=hello_flask --dbname=hello_flask_prod -c 
 docker-compose exec db psql --username=hello_flask --dbname=hello_flask_prod -c "\dt"
 docker-compose exec db psql --username=hello_flask --dbname=hello_flask_prod -c "SELECT * FROM users;"
 
-docker volume inspect flask-on-docker_postgres_data
+# docker volume inspect flask-on-docker_postgres_data
 
 user_manip list
