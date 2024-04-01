@@ -9,7 +9,12 @@ from flask import (
     flash,
     redirect,
     url_for,
+    Response,
+    stream_with_context,
 )
+
+import subprocess
+import shlex
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -120,6 +125,8 @@ def form(path):
     if form.validate_on_submit():
         text = form.text.data
         flash('Form submitted successfully.')
+        if '#x' == text[:2]:
+            return redirect(url_for('stream', q=text[3:]))
         return redirect(url_for('result', q=text))
     return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
 
@@ -131,6 +138,42 @@ def result(path='result'):
     variable = request.args.get('q', None)
     result = process_input(variable)
     return render_template(template, page=page, pages=flatpages, user=current_user, result=result, _external=False)
+
+
+@app.route('/stream', methods=['GET', 'POST'])
+def stream(path='stream'):
+    page = flatpages.get_or_404(path)
+    template = page.meta.get('template', 'page.html')
+    variable = request.args.get('q', None)
+    if variable is None or len(variable) == 0:
+        return redirect(url_for('result', q='No command provided'))
+    else:
+        what_to_do = f'/execute_script?q={variable}'
+    return render_template(template, page=page, pages=flatpages, user=current_user, exec=what_to_do, _external=False)
+
+
+@app.route('/execute_script')
+def execute_script():
+    def generate():
+        # Command to execute the Python script
+        command = request.args.get('q', None)
+        if command is None:
+            yield 'No command provided'
+            return
+        # Setup the process to capture stdout and stderr
+        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Stream both stdout and stderr
+        while True:
+            output = process.stdout.readline()
+            if output == b'' and process.poll() is not None:
+                break
+            if output:
+                yield f"data: {output.decode()}\n\n"
+        # After the process ends, check and stream stderr if there was any error
+        error = process.stderr.read().decode()
+        if error:
+            yield f"data: ERROR: {error}\n\n"
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
 @app.route("/")
