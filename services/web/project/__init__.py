@@ -105,7 +105,8 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('result', q='logout successful'))
+    # return redirect(url_for('result', q='logout successful'))
+    return redirect(url_for('page', path='home'))
 
 
 @app.route('/<path:path>/')
@@ -133,6 +134,7 @@ def form(path):
 
 
 @app.route('/result', methods=['GET', 'POST'])
+@login_required
 def result(path='result'):
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
@@ -144,6 +146,7 @@ def result(path='result'):
 
 
 @app.route('/stream', methods=['GET', 'POST'])
+@login_required
 def stream(path='stream'):
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
@@ -158,6 +161,7 @@ def stream(path='stream'):
 
 
 @app.route('/stream_file')
+@login_required
 def stream_file():
     def generate():
         filename = request.args.get('q', None)
@@ -171,6 +175,7 @@ def stream_file():
 
 
 @app.route('/execute_script')
+@login_required
 def execute_script():
     def generate():
         # Command to execute the Python script
@@ -208,6 +213,7 @@ def handle_exception(e):
 
 
 @app.route("/static/<path:filename>")
+@login_required
 def staticfiles(filename):
     return send_from_directory(app.config["STATIC_FOLDER"], filename)
 

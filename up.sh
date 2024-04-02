@@ -14,6 +14,7 @@ elif [ "$1" == "prod" ]; then
 	else
 		docker-compose -f docker-compose.prod.yml down
 		docker-compose -f docker-compose.prod.yml up -d
+		./make_db_prod.sh
 	fi
 else
 	echo "Invalid argument. Please use 'dev' or 'prod'."
