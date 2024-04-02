@@ -127,9 +127,9 @@ def form(path):
     if form.validate_on_submit():
         text = form.text.data
         flash('Form submitted successfully.')
-        if '.x' == text[:2]:
-            return redirect(url_for('stream', q=text[3:]))
-        return redirect(url_for('result', q=text))
+        if '.b' == text[:2]:
+            return redirect(url_for('result', q=text))
+        return redirect(url_for('stream', q=text[3:]))
     return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
 
 
