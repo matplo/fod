@@ -7,4 +7,4 @@ import datetime
 
 for i in range(10):
     print(datetime.datetime.now())
-    time.sleep(5)
+    time.sleep(1)

@@ -3,16 +3,30 @@
 {% block content %}
 
 <div class="container">
-		{{ page.html | safe }}
+    {{ page.html | safe }}
 </div>
 
 {% if page.meta['stream'] %}
 <div class="container">
-		<a href="{{stream_source}}" class="btn btn-success" role="button">Download Output</a>
+    <a href="{{stream_source}}" class="btn btn-success" role="button">Download Output</a>
     <h2>Output:</h2>
-		<pre id="output" class="text-monospace"></pre>
+    <pre id="output" class="text-monospace"></pre>
 </div>
 {% endif %}
+
+<!-- Modal -->
+<div class="modal fade" id="streamModal" tabindex="-1" role="dialog" aria-labelledby="streamModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="streamModalLabel">Processing...</h5>
+      </div>
+      <div class="modal-body">
+        Please wait for the process/streaming to complete.
+      </div>
+    </div>
+  </div>
+</div>
 
 {% include "footer.html" %}
 
@@ -21,20 +35,35 @@
 {% block scripts %}
 {{ super() }}
 <script>
-    const outputElement = document.getElementById('output');
+const outputElement = document.getElementById('output');
+const streamModal = $('#streamModal');
 
-    // Establish a connection to the Flask endpoint streaming the output
-    const eventSource = new EventSource( '{{ stream_source }}' );
+// Show the modal immediately when the page loads
+$(document).ready(function() {
+    streamModal.modal('show');
+});
 
-    eventSource.onmessage = function(event) {
-        // Append each line of output to the <pre> element
-        outputElement.textContent += event.data + '\n';
-    };
+// Create a new XMLHttpRequest
+const xhr = new XMLHttpRequest();
 
-    eventSource.onerror = function(event) {
-        // Handle any errors or close the connection when the script finishes
-				console.error("EventSource failed:", event);
-        eventSource.close();
-    };
+xhr.open('GET', '{{ stream_source }}', true);
+
+xhr.onprogress = function(event) {
+    // Append each line of output to the <pre> element
+    outputElement.textContent += xhr.responseText;
+};
+
+xhr.onload = function(event) {
+    // Hide the modal when the streaming ends
+    streamModal.modal('hide');
+};
+
+xhr.onerror = function(event) {
+    // Hide the modal and log an error message when an error occurs
+    console.error("XMLHttpRequest failed:", event);
+    streamModal.modal('hide');
+};
+
+xhr.send();
 </script>
 {% endblock %}

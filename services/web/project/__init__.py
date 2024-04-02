@@ -15,6 +15,7 @@ from flask import (
 
 import subprocess
 import shlex
+import time
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
@@ -160,15 +161,21 @@ def stream_file():
         _eof = False
         _sof_marker = f'#begin {filename}'
         _eof_marker = f'#end {filename}'
-        while not _eof:
-            with open(filename) as f:
-                for line in f:
+        with open(filename, 'r') as f:
+            while not _eof:
+                line = f.readline()
+                if not line:
+                    time.sleep(0.1)  # sleep briefly before trying to read again
+                    continue
+                else:
+                    yield f"data: {line}"
                     if _eof_marker in line:
                         _eof = True
                     if _sof_marker in line:
                         continue
-                    yield f"data: {line}\n"
-    return Response(stream_with_context(generate()), mimetype='text/event-stream')
+    response = Response(stream_with_context(generate()), mimetype='text/event-stream')
+    response.implicit_sequence_conversion = False
+    return response
 
 
 @app.route('/execute_script')
