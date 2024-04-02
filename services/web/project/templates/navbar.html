@@ -7,13 +7,15 @@
     <ul class="nav navbar-nav mr-auto">
       <!-- <li class="active"><a href="{{ url_for('page', path='home') }}">Home</a></li> -->
       {% for page in pages %}
-				{% if page.meta['navbar'] %}
-  				{% if page.meta['form'] %}
-  	        <li> <a href="{{ url_for('page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
-          {% else %}
-  	        <li> <a href="{{ url_for('page', path=page.path) }}">{{ page.title }}</a> </li>
+        {% if current_user.is_authenticated or not page.meta['requires_login'] %}
+          {% if page.meta['navbar'] %}
+            {% if page.meta['form'] %}
+              <li> <a href="{{ url_for('page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
+            {% else %}
+              <li> <a href="{{ url_for('page', path=page.path) }}">{{ page.title }}</a> </li>
+            {% endif %}
           {% endif %}
-				{% endif %}
+        {% endif %}
       {% endfor %}
     </ul>
     <ul class="nav navbar-nav ml-auto justify-content-end">
