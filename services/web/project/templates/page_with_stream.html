@@ -8,10 +8,9 @@
 
 {% if page.meta['stream'] %}
 <div class="container">
-		<h2>Input:</h2>
-		<pre id="input">{{ exec }}</pre>
+		<a href="{{stream_source}}" class="btn btn-success" role="button">Download Output</a>
     <h2>Output:</h2>
-    <pre id="output"></pre>
+		<pre id="output" class="text-monospace"></pre>
 </div>
 {% endif %}
 
@@ -25,7 +24,7 @@
     const outputElement = document.getElementById('output');
 
     // Establish a connection to the Flask endpoint streaming the output
-    const eventSource = new EventSource( '{{ exec }}' );
+    const eventSource = new EventSource( '{{ stream_source }}' );
 
     eventSource.onmessage = function(event) {
         // Append each line of output to the <pre> element

@@ -148,8 +148,27 @@ def stream(path='stream'):
     if variable is None or len(variable) == 0:
         return redirect(url_for('result', q='No command provided'))
     else:
-        what_to_do = f'/execute_script?q={variable}'
-    return render_template(template, page=page, pages=flatpages, user=current_user, exec=what_to_do, _external=False)
+        cmnd_output_file = process_input(variable)
+        stream_source = f'/stream_file?q={cmnd_output_file}'
+    return render_template(template, page=page, pages=flatpages, user=current_user, stream_source=stream_source, _external=False)
+
+
+@app.route('/stream_file')
+def stream_file():
+    def generate():
+        filename = request.args.get('q', None)
+        _eof = False
+        _sof_marker = f'#begin {filename}'
+        _eof_marker = f'#end {filename}'
+        while not _eof:
+            with open(filename) as f:
+                for line in f:
+                    if _eof_marker in line:
+                        _eof = True
+                    if _sof_marker in line:
+                        continue
+                    yield f"data: {line}\n"
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
 @app.route('/execute_script')
