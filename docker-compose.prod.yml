@@ -27,12 +27,14 @@ services:
   nginx:
     build: ./services/nginx
     volumes:
+      - ./certificates:/etc/nginx/ssl
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
       - pages_volume:/home/app/web/project/pages
       - templates_volume:/home/app/web/project/templates
     ports:
-      - 1337:80
+      # - 1337:80
+      - 443:443
     depends_on:
       - web
 
