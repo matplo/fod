@@ -35,35 +35,28 @@
 {% block scripts %}
 {{ super() }}
 <script>
-const outputElement = document.getElementById('output');
-const streamModal = $('#streamModal');
+    const outputElement = document.getElementById('output');
+    const streamModal = $('#streamModal');
 
-// Show the modal immediately when the page loads
-$(document).ready(function() {
-    streamModal.modal('show');
-});
+    // Show the modal immediately when the page loads
+    $(document).ready(function() {
+        streamModal.modal('show');
+    });
 
-// Create a new XMLHttpRequest
-const xhr = new XMLHttpRequest();
+    // Establish a connection to the Flask endpoint streaming the output
+    const eventSource = new EventSource( '{{ stream_source }}' );
 
-xhr.open('GET', '{{ stream_source }}', true);
+    eventSource.onmessage = function(event) {
+        // Append each line of output to the <pre> element
+        outputElement.textContent += event.data + '\n';
+        console.log(event.data);
+    };
 
-xhr.onprogress = function(event) {
-    // Append each line of output to the <pre> element
-    outputElement.textContent += xhr.responseText;
-};
-
-xhr.onload = function(event) {
-    // Hide the modal when the streaming ends
-    streamModal.modal('hide');
-};
-
-xhr.onerror = function(event) {
-    // Hide the modal and log an error message when an error occurs
-    console.error("XMLHttpRequest failed:", event);
-    streamModal.modal('hide');
-};
-
-xhr.send();
+    eventSource.onerror = function(event) {
+        // Hide the modal and close the connection when the streaming ends or an error occurs
+        console.error("EventSource failed:", event);
+        streamModal.modal('hide');
+        eventSource.close();
+    };
 </script>
 {% endblock %}

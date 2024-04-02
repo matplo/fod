@@ -168,7 +168,8 @@ def stream_file():
                     time.sleep(0.1)  # sleep briefly before trying to read again
                     continue
                 else:
-                    yield f"data: {line}"
+                    yield f"data: {line}\n\n"
+                    time.sleep(0.1)  # add delay between each update
                     if _eof_marker in line:
                         _eof = True
                     if _sof_marker in line:
