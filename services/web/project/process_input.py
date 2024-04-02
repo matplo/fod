@@ -17,13 +17,13 @@ def execute_command(command, foutname):
         command_split = shlex.split(command)
         try:
             popen = subprocess.Popen(command_split, stdout=fout, stderr=fout, bufsize=1)
-            print(f"#pid: {popen.pid}", file=fout)  # Print the PID
+            print(f"#pid [{popen.pid}]", file=fout)  # Print the PID
         except Exception as e:
             print(f"# {e}", file=fout)
-            print(f'#end {foutname}', file=fout)
+            print(f'#end [{command}] > {foutname}', file=fout)
             return
         popen.wait()
-        print(f'#end {foutname}', file=fout)
+        print(f'#end [{command}] > {foutname}', file=fout)
 
 
 def get_link_button(fname, text):
@@ -34,12 +34,13 @@ def process_input(command, link=False):
     foutname = mktemp()
     with open(foutname, 'w') as fout:
         if link:
-            print(f'#begin {command} ', get_link_button(foutname, foutname), file=fout)
+            print(f'#begin [{command}] ', get_link_button(foutname, foutname), file=fout)
         else:
-            print(f'#begin {command} {foutname}', file=fout)
+            print(f'#begin [{command}] > {foutname}', file=fout)
     # execute command in a separate process and quit
     process = multiprocessing.Process(target=execute_command, args=(command, foutname))
     process.start()
+    # print(f"#pid pipe [{process.pid}]", file=fout)  # Print the PID - this would write to the file used by pipe...
     return foutname
 
 

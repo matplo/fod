@@ -128,8 +128,8 @@ def form(path):
         text = form.text.data
         flash('Form submitted successfully.')
         if '.b' == text[:2]:
-            return redirect(url_for('result', q=text))
-        return redirect(url_for('stream', q=text[3:]))
+            return redirect(url_for("result", q=text[3:]))
+        return redirect(url_for('stream', q=text))
     return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
 
 
