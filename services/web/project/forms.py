@@ -4,7 +4,7 @@ from wtforms.validators import DataRequired, Email, Length
 
 
 class MyForm(FlaskForm):
-    text = StringField('Text', validators=[DataRequired()])
+    text = StringField('Query', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 

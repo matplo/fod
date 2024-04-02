@@ -137,8 +137,10 @@ def result(path='result'):
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
-    result = process_input(variable)
-    return render_template(template, page=page, pages=flatpages, user=current_user, result=result, _external=False)
+    result_fout = process_input(variable, link=True)
+    with open(result_fout, 'r') as f:
+        lines = f.readlines()
+    return render_template(template, page=page, pages=flatpages, user=current_user, result='\n'.join(lines), _external=False)
 
 
 @app.route('/stream', methods=['GET', 'POST'])

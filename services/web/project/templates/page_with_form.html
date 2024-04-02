@@ -3,17 +3,27 @@
 {% block content %}
 
 <div class="container">
-		{{ page.html | safe }}
-</div>
+        {{ page.html | safe }}
 
 {% if page.meta['form'] %}
 <div class="container">
 <form method="POST">
-	{{ form.hidden_tag() }}
-	{{ form.text.label }} {{ form.text(class="form-control") }}
-	<!-- Add more fields as needed -->
-	{{ form.submit(class="btn btn-primary") }}
+    {{ form.hidden_tag() }}
+    <div class="row">
+        <div class="col-8">
+            {{ form.text.label }}
+        </div>
+        <div class="col-8">
+            {{ form.text(class="form-control") }}
+        </div>
+        <!-- Add more fields as needed -->
+        <div class="col-8">
+            {{ form.submit(class="btn btn-primary w-100") }}  <!-- Add w-100 class here -->
+        </div>
+    </div>
 </form>
+</div>
+
 </div>
 {% endif %}
 

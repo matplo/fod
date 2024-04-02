@@ -5,6 +5,6 @@ navbar: False
 result: True
 ---
 
-# This is the result of your request
+# Result of your request
 
 
