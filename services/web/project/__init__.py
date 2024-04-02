@@ -150,6 +150,7 @@ def stream(path='stream'):
         return redirect(url_for('result', q='No command provided'))
     else:
         cmnd_output_file = process_input(variable)
+        time.sleep(0.1)  # sleep briefly before trying to stream
         stream_source = f'/stream_file?q={cmnd_output_file}'
     return render_template(template, page=page, pages=flatpages, user=current_user, stream_source=stream_source, _external=False)
 
@@ -161,21 +162,27 @@ def stream_file():
         _eof = False
         _sof_marker = f'#begin {filename}'
         _eof_marker = f'#end {filename}'
+        counter = 0
         with open(filename, 'r') as f:
             while not _eof:
                 line = f.readline()
                 if not line:
                     time.sleep(0.1)  # sleep briefly before trying to read again
+                    yield f"event: {counter}\n\n"
+                    counter += 1
                     continue
                 else:
-                    yield f"data: {line}\n\n"
-                    time.sleep(0.1)  # add delay between each update
                     if _eof_marker in line:
                         _eof = True
                     if _sof_marker in line:
                         continue
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+        for line in lines:
+            yield f"data: {line}\n\n"
+        yield "event: end\n\n"  # send an end event
     response = Response(stream_with_context(generate()), mimetype='text/event-stream')
-    response.implicit_sequence_conversion = False
+    response.implicit_sequence_conversion = True
     return response
 
 

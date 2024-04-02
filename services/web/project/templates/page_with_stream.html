@@ -50,13 +50,27 @@
         // Append each line of output to the <pre> element
         outputElement.textContent += event.data + '\n';
         console.log(event.data);
+				var modalBody = $('#streamModal .modal-body');
+        modalBody.text('event.event');
+        modalBody[0].offsetHeight; // force reflow
     };
 
-    eventSource.onerror = function(event) {
-        // Hide the modal and close the connection when the streaming ends or an error occurs
-        console.error("EventSource failed:", event);
-        streamModal.modal('hide');
-        eventSource.close();
-    };
+		eventSource.addEventListener('end', function(event) {
+    console.log('End of file reached');
+		streamModal.modal('hide');
+    eventSource.close();
+		});
+
+		eventSource.onerror = function(event) {
+	    console.log('Ready state:', eventSource.readyState);
+			console.log('Event:', event);
+			if (eventSource.readyState === EventSource.CLOSED) {
+					console.log('Connection was closed normally');
+			} else {
+					console.error('EventSource failed:', event);
+			}
+			streamModal.modal('hide');
+			eventSource.close();
+		};
 </script>
 {% endblock %}
