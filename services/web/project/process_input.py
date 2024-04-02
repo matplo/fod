@@ -16,7 +16,7 @@ def execute_command(command, foutname):
     with open(foutname, 'a+') as fout:
         command_split = shlex.split(command)
         try:
-            popen = subprocess.Popen(command_split, stdout=fout, stderr=fout)
+            popen = subprocess.Popen(command_split, stdout=fout, stderr=fout, bufsize=1)
         except Exception as e:
             print(f"# {e}", file=fout)
             print(f'#end {foutname}', file=fout)

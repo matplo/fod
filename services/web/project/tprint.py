@@ -10,5 +10,5 @@ if len(sys.argv) > 1:
     n = int(sys.argv[1])
 
 for i in range(n):
-    print(datetime.datetime.now())
+    print(i, datetime.datetime.now())
     time.sleep(1)

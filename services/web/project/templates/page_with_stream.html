@@ -22,7 +22,7 @@
         <h5 class="modal-title" id="streamModalLabel">Processing...</h5>
       </div>
       <div class="modal-body">
-        Please wait for the process/streaming to complete.
+        Current iteration: <a id="counter"></a>.
       </div>
     </div>
   </div>
@@ -37,40 +37,35 @@
 <script>
     const outputElement = document.getElementById('output');
     const streamModal = $('#streamModal');
+		var pollCount = 0;  // Declare a counter variable
+    const counterElement = document.getElementById('counter');
 
     // Show the modal immediately when the page loads
     $(document).ready(function() {
         streamModal.modal('show');
     });
 
-    // Establish a connection to the Flask endpoint streaming the output
-    const eventSource = new EventSource( '{{ stream_source }}' );
+		// Start a loop that queries the server every second
+var intervalId = setInterval(function() {
+    // Query the server and read all available data
+    fetch('{{ stream_source }}')
+        .then(response => response.text())
+        .then(data => {
+            // Update the <pre> element with the data
+            outputElement.textContent = data;
+						// Update the counter element with the current value of the counter variable
+						counterElement.textContent = pollCount++;
+            // Check the last line of the data
+            var lastLine = data.trim().split('\n').pop();
+            if (lastLine.includes('#end')) {
+                // If the last line contains '#end', clear the interval and close the connection
+                clearInterval(intervalId);
+                streamModal.modal('hide');
+		            outputElement.textContent = data;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}, 1000);
 
-    eventSource.onmessage = function(event) {
-        // Append each line of output to the <pre> element
-        outputElement.textContent += event.data + '\n';
-        console.log(event.data);
-				var modalBody = $('#streamModal .modal-body');
-        modalBody.text('event.event');
-        modalBody[0].offsetHeight; // force reflow
-    };
-
-		eventSource.addEventListener('end', function(event) {
-    console.log('End of file reached');
-		streamModal.modal('hide');
-    eventSource.close();
-		});
-
-		eventSource.onerror = function(event) {
-	    console.log('Ready state:', eventSource.readyState);
-			console.log('Event:', event);
-			if (eventSource.readyState === EventSource.CLOSED) {
-					console.log('Connection was closed normally');
-			} else {
-					console.error('EventSource failed:', event);
-			}
-			streamModal.modal('hide');
-			eventSource.close();
-		};
 </script>
 {% endblock %}

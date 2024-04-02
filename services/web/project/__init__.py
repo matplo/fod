@@ -159,28 +159,10 @@ def stream(path='stream'):
 def stream_file():
     def generate():
         filename = request.args.get('q', None)
-        _eof = False
-        _sof_marker = f'#begin {filename}'
-        _eof_marker = f'#end {filename}'
-        counter = 0
-        with open(filename, 'r') as f:
-            while not _eof:
-                line = f.readline()
-                if not line:
-                    time.sleep(0.1)  # sleep briefly before trying to read again
-                    yield f"event: {counter}\n\n"
-                    counter += 1
-                    continue
-                else:
-                    if _eof_marker in line:
-                        _eof = True
-                    if _sof_marker in line:
-                        continue
         with open(filename, 'r') as f:
             lines = f.readlines()
         for line in lines:
-            yield f"data: {line}\n\n"
-        yield "event: end\n\n"  # send an end event
+            yield f"{line}"
     response = Response(stream_with_context(generate()), mimetype='text/event-stream')
     response.implicit_sequence_conversion = True
     return response
