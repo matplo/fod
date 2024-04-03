@@ -35,6 +35,8 @@ from flask_login import (
 
 from .forms import MyForm, LoginForm
 from .process_input import process_input
+from .redis_store import RedisStoreApp, RedisStoreExecFiles
+from .page_data import PageData
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -57,6 +59,8 @@ logger.addHandler(handler)
 
 
 db = SQLAlchemy(app)
+redis_store = RedisStoreApp()
+redis_store.init_app(app)
 
 
 class User(UserMixin, db.Model):
@@ -98,7 +102,7 @@ def login():
             return redirect(url_for('result', q='login successful'))
         else:
             return redirect(url_for('result', q='login failed'))
-    return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
+    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
 
 
 @app.route('/logout')
@@ -115,7 +119,11 @@ def page(path):
     if page.meta.get('form', None) == 'True':
         return redirect(url_for('form', path=path))
     template = page.meta.get('template', 'page.html')
-    return render_template(template, page=page, pages=flatpages, user=current_user, _external=False)
+    pdata = PageData()
+    pdata.meta = page.meta
+    if path == 'list_qs':
+        pdata.qs = redis_store.files.get_files_str()
+    return render_template(template, page=page, pages=flatpages, data=pdata, _external=False)
 
 
 @app.route('/form/<path:path>/', methods=['GET', 'POST'])
@@ -130,7 +138,7 @@ def form(path):
         if '.b' == text[:2]:
             return redirect(url_for("result", q=text[3:]))
         return redirect(url_for('stream', q=text))
-    return render_template(template, page=page, pages=flatpages, user=current_user, form=form, _external=False)
+    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
 
 
 @app.route('/result', methods=['GET', 'POST'])
@@ -140,9 +148,10 @@ def result(path='result'):
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
     result_fout = process_input(variable, link=True)
+    redis_store.files.add_file(result_fout)
     with open(result_fout, 'r') as f:
         lines = f.readlines()
-    return render_template(template, page=page, pages=flatpages, user=current_user, result='\n'.join(lines), _external=False)
+    return render_template(template, page=page, pages=flatpages, result='\n'.join(lines), _external=False)
 
 
 @app.route('/stream', methods=['GET', 'POST'])
@@ -157,7 +166,7 @@ def stream(path='stream'):
         cmnd_output_file = process_input(variable)
         time.sleep(0.1)  # sleep briefly before trying to stream
         stream_source = f'/stream_file?q={cmnd_output_file}'
-    return render_template(template, page=page, pages=flatpages, user=current_user, stream_source=stream_source, _external=False)
+    return render_template(template, page=page, pages=flatpages, stream_source=stream_source, _external=False)
 
 
 @app.route('/stream_file')
@@ -209,7 +218,7 @@ def handle_exception(e):
     # get the error number
     error_number = getattr(e, 'code', 500)  # default to 500 if no 'code' attribute
     # pass the error to the template
-    return render_template('error.html', error=e, error_number=error_number, pages=flatpages, user=current_user, _external=False), error_number
+    return render_template('error.html', error=e, error_number=error_number, pages=flatpages, _external=False), error_number
 
 
 @app.route("/static/<path:filename>")

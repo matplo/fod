@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.prod
     command: gunicorn --bind 0.0.0.0:5000 manage:app
     volumes:
-      - ./users.yaml:/home/app/web/users.yaml  # new line
+      - ./users.yaml:/home/app/web/users.yaml
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
       - pages_volume:/home/app/web/project/pages
@@ -18,12 +18,21 @@ services:
       - ./.env.prod
     depends_on:
       - db
+      - redis
   db:
     image: postgres:13
     volumes:
       - ./services/db/postgres_data_prod:/var/lib/postgresql/data/
     env_file:
       - ./.env.prod.db
+
+  redis:
+    image: redis:latest
+    #ports:
+    #  - 6379:6379
+    volumes:
+      - redis_data:/data
+
   nginx:
     build: ./services/nginx
     volumes:
@@ -44,3 +53,4 @@ volumes:
   media_volume:
   pages_volume:
   templates_volume:
+  redis_data:

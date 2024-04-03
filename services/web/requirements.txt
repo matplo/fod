@@ -23,4 +23,5 @@ Flask-SSLify
 Flask-Assets
 Flask-PageDown
 Flask-Images
+Flask-Redis
 pyyaml

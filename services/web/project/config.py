@@ -20,4 +20,5 @@ class Config(object):
         }
     }
     SECRET_KEY = 'TEST_APP_SECRET_KEY'
+    REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
     # SERVER_NAME = 'localhost:1337' - not needed with ProxyFix

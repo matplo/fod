@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block header %}
+<title>{{ page.title }}</title>
+{% endblock %}
+
+{% include "navbar.html" %}
+
+{% block content %}
+
+<div class="container">
+	{{ page.html | safe }}
+</div>
+
+<div class="container">
+	<ul class="list-group">
+		{% for qs in data.qs %}
+		<li class="list-group-item">
+			<a class="btn btn-link" href="/stream?q=cat+{{ qs }}">{{ qs }}</a>
+		</li>
+		{% endfor %}
+	</ul>
+</div>
+
+{% include "footer.html" %}
+
+{% endblock %}

@@ -1,1 +1,1 @@
-docker exec -it flask-on-docker-web-1 /bin/bash
+docker-compose -f docker-compose.prod.yml exec web /bin/bash
