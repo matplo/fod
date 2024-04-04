@@ -14,15 +14,23 @@
 
 <div class="container">
 	<ul class="list-group">
-		{% if pdata.qs is not none %}
-			{% for qs in pdata.qs %}
+		{% if g.pdata is not none %}
+			{% for qs in g.pdata.qs_list %}
 				<li class="list-group-item">
-					<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }}
+					{%if g.pdata.last_qs.ctime == qs.ctime and g.pdata.last_qs.filename == qs.filename %}
+						<a class="btn btn-danger" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }}
+						{% else %}
+						<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }}
+					{% endif %}
+				</li>
+			{% else %}
+				<li class="list-group-item">
+					Nothing yet.
 				</li>
 			{% endfor %}
 		{% else %}
 			<li class="list-group-item">
-				No results found.
+				Nothing yet.
 			</li>
 		{% endif %}
 	</ul>

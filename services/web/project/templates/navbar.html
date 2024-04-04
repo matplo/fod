@@ -6,7 +6,7 @@
     </div>
     <ul class="nav navbar-nav mr-auto">
       <!-- <li class="active"><a href="{{ url_for('page', path='home') }}">Home</a></li> -->
-      {% for page in pages %}
+      {% for page in g.pages %}
         {% if current_user.is_authenticated or not page.meta['requires_login'] %}
           {% if page.meta['navbar'] %}
             {% if page.meta['form'] %}

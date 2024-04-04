@@ -20,7 +20,7 @@ def execute_command(command, foutname):
             popen = subprocess.Popen(command_split, stdout=fout, stderr=fout, bufsize=1)
             print(f"#pid [{popen.pid}]", file=fout)  # Print the PID
         except Exception as e:
-            print(f"# {e}", file=fout)
+            print(f"#ERROR_FLAG - {e}", file=fout)
             print(f'#end [{command}] > {foutname}', file=fout)
             return
         popen.wait()

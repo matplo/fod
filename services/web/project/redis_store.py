@@ -57,7 +57,7 @@ class FileStat(GenericObject):
         with open(self.filename, 'r') as f:
             lines = f.readlines()
             if len(lines) == 0:
-                self.pid = 'warning'
+                self.status = 'warning'
                 return False
             # self.command = lines[0].split('#begin [')[1].split(']')[0]
             self.command, self.ctime = self._get_cmnd_and_ctime(lines[0])
@@ -65,6 +65,8 @@ class FileStat(GenericObject):
             # if lines[-1].startswith(f'#end [{self.command}]'):
             if lines[-1].startswith('#end ') and lines[-1].endswith(f'{self.filename}\n'):
                 self.status = 'success'
+            if len([True for _l in lines if _l.startswith('#ERROR_FLAG -')]):
+                self.status = 'error'
         self.mtime = os.path.getmtime(self.filename)
         self.cmtime = time.ctime(self.mtime)
         return True
@@ -79,7 +81,7 @@ class RedisStoreExecFiles:
     def get_files(self):
         return self.redis_store.hkeys('files')
 
-    def get_files_dict(self):
+    def get_files_dict_slow(self):
         _files = []
         for k in self.redis_store.hkeys('files'):
             _file = self.get_file(k.decode())
@@ -88,7 +90,17 @@ class RedisStoreExecFiles:
                     _files.append(_file.as_dict())
         return _files
 
-    def list(self):
+    def get_files_dict(self):
+        _dict = self.redis_store.hgetall('files')
+        _files = []
+        for k in _dict:
+            _file = _dict[k].decode()
+            if _file is not None:
+                if _file.verify():
+                    _files.append(_file.as_dict())
+        return _files
+
+    def get_files_list(self):
         _files = []
         for k in self.redis_store.hkeys('files'):
             _file = self.get_file(k.decode())
@@ -102,7 +114,7 @@ class RedisStoreExecFiles:
         _file = FileStat(filename=filename, pid=pid)
         if _file.verify():
             self.redis_store.hset('files', filename, _file.as_json())
-            self.get_file(filename)
+        return self.get_file(filename)
 
     def get_file(self, filename):
         _file_json = self.redis_store.hget('files', filename).decode()

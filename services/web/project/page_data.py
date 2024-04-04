@@ -1,5 +1,6 @@
 # page_data.py
 import json
+from flask import current_app
 
 
 class GenericObject(object):
@@ -67,3 +68,23 @@ class PageData(GenericObject):
 
     def __init__(self, **kwargs):
         super(PageData, self).__init__(**kwargs)
+
+
+class PageDataExtension:
+    def __init__(self, app=None):
+        self.app = app
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app):
+        # Add extension to the application
+        if not hasattr(app, 'extensions'):
+            app.extensions = {}
+        app.extensions['pagedata'] = self
+
+        # Add default configuration values
+        app.config.setdefault('PAGEDATA_OPTION', 'default_value')
+        self.data = PageData()
+
+    def clear_pagedata(self):
+        self.data = PageData()

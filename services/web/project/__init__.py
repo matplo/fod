@@ -11,6 +11,7 @@ from flask import (
     url_for,
     Response,
     stream_with_context,
+    g,
 )
 
 import subprocess
@@ -36,7 +37,7 @@ from flask_login import (
 from .forms import MyForm, LoginForm
 from .process_input import process_input
 from .redis_store import RedisStoreApp, RedisStoreExecFiles
-from .page_data import PageData
+from .page_data import PageData, PageDataExtension
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -61,6 +62,7 @@ logger.addHandler(handler)
 db = SQLAlchemy(app)
 redis_store = RedisStoreApp()
 redis_store.init_app(app)
+pdata_ext = PageDataExtension(app)
 
 
 class User(UserMixin, db.Model):
@@ -89,6 +91,19 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 
+@app.before_request
+def before_request():
+    g.page = None
+    g.pages = flatpages
+    g.pdata = pdata_ext.data
+    g.user = current_user
+    g.redis = redis_store
+    g.pdata.meta = None
+    g.pdata.form = None
+    g.pdata.qs_list = None
+    g.pdata.last_qs = None
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     page = flatpages.get_or_404('login')
@@ -102,7 +117,7 @@ def login():
             return redirect(url_for('result', q='login successful'))
         else:
             return redirect(url_for('result', q='login failed'))
-    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
+    return render_template(template, page=page, form=form)
 
 
 @app.route('/logout')
@@ -119,16 +134,13 @@ def page(path):
     if page.meta.get('form', None) == 'True':
         return redirect(url_for('form', path=path))
     template = page.meta.get('template', 'page.html')
-    pdata = PageData()
-    pdata.meta = page.meta
-    pdata.redis = redis_store
-    pdata.init_name = __name__
+    g.pdata.meta = page.meta
     if path == 'list_qs':
-        if redis_store.files:
-            pdata.qs = redis_store.files.list()
-        else:
-            pdata.qs = []
-    return render_template(template, page=page, pages=flatpages, pdata=pdata, _external=False)
+        qs_highlight = request.args.get('q', None)
+        if qs_highlight is not None:
+            g.pdata.last_qs = g.redis.files.get_file(qs_highlight)
+        g.pdata.qs_list = g.redis.files.get_files_list()
+    return render_template(template, page=page)
 
 
 @app.route('/form/<path:path>/', methods=['GET', 'POST'])
@@ -142,21 +154,23 @@ def form(path):
         flash('Form submitted successfully.')
         if '.x' == text[:2]:
             return redirect(url_for('stream', q=text[3:]))
-        return redirect(url_for("result", q=text))
-    return render_template(template, page=page, pages=flatpages, form=form, _external=False)
+        return redirect(url_for("batch", q=text))
+    return render_template(template, page=page, form=form)
 
 
-@app.route('/result', methods=['GET', 'POST'])
+@app.route('/batch', methods=['GET', 'POST'])
 @login_required
-def result(path='result'):
-    page = flatpages.get_or_404(path)
-    template = page.meta.get('template', 'page.html')
+def batch(path='batch'):
+    # page = flatpages.get_or_404(path)
+    # template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
+    # the next line actually launches the command
     result_fout, pid = process_input(variable, link=True)
-    redis_store.files.add_file(result_fout, pid)
-    with open(result_fout, 'r') as f:
-        lines = f.readlines()
-    return render_template(template, page=page, pages=flatpages, result='\n'.join(lines), _external=False)
+    g.pdata.last_qs = g.redis.files.add_file(result_fout, pid)
+    return redirect(url_for('page', path='list_qs', q=result_fout))
+    # with open(result_fout, 'r') as f:
+    #    lines = f.readlines()
+    # return render_template(template, page=page, result='<br>'.join(lines))
 
 
 @app.route('/stream', methods=['GET', 'POST'])
@@ -171,7 +185,7 @@ def stream(path='stream'):
         cmnd_output_file, _ = process_input(variable)
         time.sleep(0.1)  # sleep briefly before trying to stream
         stream_source = f'/stream_file?q={cmnd_output_file}'
-    return render_template(template, page=page, pages=flatpages, stream_source=stream_source, _external=False)
+    return render_template(template, page=page, stream_source=stream_source)
 
 
 @app.route('/stream_file')
@@ -223,7 +237,7 @@ def handle_exception(e):
     # get the error number
     error_number = getattr(e, 'code', 500)  # default to 500 if no 'code' attribute
     # pass the error to the template
-    return render_template('error.html', error=e, error_number=error_number, pages=flatpages, _external=False), error_number
+    return render_template('error.html', error=e, error_number=error_number), error_number
 
 
 @app.route("/static/<path:filename>")
