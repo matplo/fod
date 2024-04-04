@@ -6,6 +6,7 @@ from flask import (
     send_from_directory,
     request,
     render_template,
+    render_template_string,
     flash,
     redirect,
     url_for,
@@ -42,6 +43,8 @@ from .config import update_dict_from_yaml
 
 import logging
 from logging.handlers import RotatingFileHandler
+import markdown
+
 
 app = Flask(__name__)
 app.debug = False
@@ -52,7 +55,15 @@ flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
 # note you can leave config.py alone and use config.yaml to override settings
 update_dict_from_yaml(app.config)
-print(app.config)
+
+
+def custom_render_template(text):
+    prerendered_body = render_template_string(text)
+    return markdown.markdown(prerendered_body, extensions=app.config['FLATPAGES_MARKDOWN_EXTENSIONS'])
+
+
+app.config['FLATPAGES_HTML_RENDERER'] = custom_render_template
+
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # Set up logging

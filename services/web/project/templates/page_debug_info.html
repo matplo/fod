@@ -12,40 +12,6 @@
 	{{ page.html | safe }}
 </div>
 
-<div class="container">
-
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#configInfoModal">
-  Show some app intergal settings
-</button>
-
-<!-- Modal -->
-<div class="modal fade" id="configInfoModal" tabindex="-1" role="dialog" aria-labelledby="configInfoModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title" id="configInfoModalLabel">Dump of g.pdata.__dict__ </h3>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        {% if g.pdata is not none %}
-          {% for k in g.pdata.__dict__ %}
-            {{ k }} = {{ g.pdata.__dict__[k] }} <br>
-          {% endfor %}
-        {% endif %}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
-      </div>
-    </div>
-  </div>
-</div>
-
-</div>
-
 {% include "footer.html" %}
 
 {% endblock %}
