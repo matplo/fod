@@ -102,6 +102,7 @@ def before_request():
     g.pdata.form = None
     g.pdata.qs_list = None
     g.pdata.last_qs = None
+    g.config = app.config
 
 
 @app.route('/login', methods=['GET', 'POST'])
