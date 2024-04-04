@@ -18,9 +18,9 @@
 			{% for qs in g.pdata.qs_list %}
 				<li class="list-group-item">
 					{%if g.pdata.last_qs.ctime == qs.ctime and g.pdata.last_qs.filename == qs.filename %}
-						<a class="btn btn-danger" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }}
+						<a class="btn btn-warning" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }} - {{ qs.mtime }}
 						{% else %}
-						<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }}
+						<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a> - {{ qs.cctime }} - {{ qs.cmtime }} - {{ qs.mtime }}
 					{% endif %}
 				</li>
 			{% else %}

@@ -5,3 +5,5 @@ navbar: False
 ---
 
 # Welcome.
+
+This page is a tool. Not much more.

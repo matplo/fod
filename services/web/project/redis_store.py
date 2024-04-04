@@ -52,12 +52,12 @@ class FileStat(GenericObject):
     def verify(self):
         if not os.path.exists(self.filename):
             self.pid = None
-            self.status = 'error'
+            self.status = 'danger'
             return False
         with open(self.filename, 'r') as f:
             lines = f.readlines()
             if len(lines) == 0:
-                self.status = 'warning'
+                self.status = 'danger'
                 return False
             # self.command = lines[0].split('#begin [')[1].split(']')[0]
             self.command, self.ctime = self._get_cmnd_and_ctime(lines[0])
@@ -66,7 +66,7 @@ class FileStat(GenericObject):
             if lines[-1].startswith('#end ') and lines[-1].endswith(f'{self.filename}\n'):
                 self.status = 'success'
             if len([True for _l in lines if _l.startswith('#ERROR_FLAG -')]):
-                self.status = 'error'
+                self.status = 'danger'
         self.mtime = os.path.getmtime(self.filename)
         self.cmtime = time.ctime(self.mtime)
         return True
@@ -108,6 +108,7 @@ class RedisStoreExecFiles:
                 if _file.verify():
                     # _files.append(_file.as_dict())
                     _files.append(_file)
+        _files.sort(key=lambda x: x.mtime, reverse=True)
         return _files
 
     def add_file(self, filename, pid=None):
