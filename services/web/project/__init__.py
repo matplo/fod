@@ -38,6 +38,7 @@ from .forms import MyForm, LoginForm
 from .process_input import process_input
 from .redis_store import RedisStoreApp, RedisStoreExecFiles
 from .page_data import PageData, PageDataExtension
+from .config import update_dict_from_yaml
 
 import logging
 from logging.handlers import RotatingFileHandler
@@ -49,6 +50,8 @@ login_manager.init_app(app)
 bs = Bootstrap(app)
 flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
+# note you can leave config.py alone and use config.yaml to override settings
+update_dict_from_yaml(app.config)
 print(app.config)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 

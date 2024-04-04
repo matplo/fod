@@ -1,0 +1,4 @@
+WEB_TITLE : "Web App - Flask"
+WEB_DESCRIPTION : "Web App - Flask"
+SECRET_KEY : "secret"
+SOME_CUSTOM_VARIABLE : "custom"

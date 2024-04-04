@@ -1,6 +1,7 @@
 # page_data.py
 import json
 from flask import current_app
+import yaml
 
 
 class GenericObject(object):
@@ -15,6 +16,8 @@ class GenericObject(object):
             self.configure_from_dict(self.init_dict)
         if self.init_json:
             self.configure_from_json(self.init_json)
+        if self.init_yaml:
+            self.configure_from_yaml(self.init_yaml)
 
     def configure_from_args(self, **kwargs):
         for key, value in kwargs.items():
@@ -28,6 +31,13 @@ class GenericObject(object):
 
     def configure_from_json(self, js, ignore_none=False):
         d = json.loads(js)
+        for k in d:
+            if ignore_none and d[k] is None:
+                continue
+            self.__setattr__(k, d[k])
+
+    def configure_from_yaml(self, yml, ignore_none=False):
+        d = yaml.safe_load(yml)
         for k in d:
             if ignore_none and d[k] is None:
                 continue
@@ -84,7 +94,7 @@ class PageDataExtension:
 
         # Add default configuration values
         app.config.setdefault('PAGEDATA_OPTION', 'default_value')
-        self.data = PageData()
+        self.data = PageData(init_dict=app.config)
 
     def clear_pagedata(self):
         self.data = PageData()

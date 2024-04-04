@@ -24,6 +24,12 @@ find services/web -name '*.py' | while read file; do
     # echo "$file" "->" "${container_name}:/home/app/web/${file#services/web/}"
 done
 
+# Find all .yaml files and copy them to the corresponding directories in the Docker container
+find services/web -name '*.yaml' | while read file; do
+    docker cp "$file" "${container_name}:/home/app/web/${file#services/web/}"
+    # echo "$file" "->" "${container_name}:/home/app/web/${file#services/web/}"
+done
+
 # Step 3: Restart gunicorn or the whole web service
 # This command restarts the web service
 docker-compose -f docker-compose.prod.yml restart web

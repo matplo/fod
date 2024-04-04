@@ -1,4 +1,5 @@
 import os
+import yaml
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
@@ -23,3 +24,10 @@ class Config(object):
     REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
     # SERVER_NAME = 'localhost:1337' - not needed with ProxyFix
     WEB_TITLE = 'Test App'
+    WEB_DESCRIPTION = 'A test app'
+    APP_YAML_CONFIG = f"{os.getenv('APP_FOLDER')}/project/config.yaml"
+
+
+def update_dict_from_yaml(d, yml=Config.APP_YAML_CONFIG):
+    with open(yml, 'r') as f:
+        d.update(yaml.safe_load(f))
