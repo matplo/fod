@@ -3,6 +3,8 @@ from flask_redis import FlaskRedis
 from .page_data import GenericObject
 import os
 import json
+import time
+import re
 import logging
 logger = logging.getLogger('project')
 
@@ -22,7 +24,7 @@ class FileStat(GenericObject):
     def __init__(self, **kwargs):
         super(FileStat, self).__init__(**kwargs)
         if self.status is None:
-            self.status = 'info'
+            self.status = 'link'
         if self.command is None:
             self.command = 'unknown'
         if self.pid is None:
@@ -35,19 +37,36 @@ class FileStat(GenericObject):
     def as_json(self):
         return json.dumps(self.as_dict())
 
+    def _get_cmnd_and_ctime(self, line):
+        # Regular expression pattern
+        pattern = r'\[(.*?)\]'
+        # Find all matches of the pattern
+        matches = re.findall(pattern, line)
+        if len(matches) == 0:
+            return None, 0
+        if len(matches) == 1:
+            return matches[0], 0
+        if len(matches) > 1:
+            return matches[0], float(matches[1])
+
     def verify(self):
         if not os.path.exists(self.filename):
             self.pid = None
+            self.status = 'error'
             return False
         with open(self.filename, 'r') as f:
             lines = f.readlines()
             if len(lines) == 0:
-                self.pid = 'unkown'
+                self.pid = 'warning'
                 return False
-            self.command = lines[0].split('#begin [')[1].split(']')[0]
+            # self.command = lines[0].split('#begin [')[1].split(']')[0]
+            self.command, self.ctime = self._get_cmnd_and_ctime(lines[0])
+            self.cctime = time.ctime(self.ctime)
             # if lines[-1].startswith(f'#end [{self.command}]'):
             if lines[-1].startswith('#end ') and lines[-1].endswith(f'{self.filename}\n'):
                 self.status = 'success'
+        self.mtime = os.path.getmtime(self.filename)
+        self.cmtime = time.ctime(self.mtime)
         return True
 
 
@@ -62,23 +81,33 @@ class RedisStoreExecFiles:
 
     def get_files_dict(self):
         _files = []
-        for k in self.redis_store.hkeys('files'):            
+        for k in self.redis_store.hkeys('files'):
             _file = self.get_file(k.decode())
             if _file is not None:
                 if _file.verify():
                     _files.append(_file.as_dict())
         return _files
 
+    def list(self):
+        _files = []
+        for k in self.redis_store.hkeys('files'):
+            _file = self.get_file(k.decode())
+            if _file is not None:
+                if _file.verify():
+                    # _files.append(_file.as_dict())
+                    _files.append(_file)
+        return _files
+
     def add_file(self, filename, pid=None):
         _file = FileStat(filename=filename, pid=pid)
-        if _file.verify():            
+        if _file.verify():
             self.redis_store.hset('files', filename, _file.as_json())
             self.get_file(filename)
 
     def get_file(self, filename):
         _file_json = self.redis_store.hget('files', filename).decode()
         if _file_json is not None:
-            _file = FileStat(init_json=_file_json)            
+            _file = FileStat(init_json=_file_json)
             return _file
         return None
 

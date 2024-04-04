@@ -125,7 +125,7 @@ def page(path):
     pdata.init_name = __name__
     if path == 'list_qs':
         if redis_store.files:
-            pdata.qs = redis_store.files.get_files_dict()
+            pdata.qs = redis_store.files.list()
         else:
             pdata.qs = []
     return render_template(template, page=page, pages=flatpages, pdata=pdata, _external=False)

@@ -5,6 +5,7 @@ import shlex
 from tempfile import mktemp
 import multiprocessing
 import argparse
+import os
 
 # This is to execute arbitrary command with
 # - exeute a thread with the command
@@ -33,10 +34,11 @@ def get_link_button(fname, text):
 def process_input(command, link=False):
     foutname = mktemp()
     with open(foutname, 'w') as fout:
+        mtime = os.path.getmtime(foutname)
         if link:
-            print(f'#begin [{command}] ', get_link_button(foutname, foutname), file=fout)
+            print(f'#begin [{command}] [{mtime}]', get_link_button(foutname, foutname), file=fout)
         else:
-            print(f'#begin [{command}] > {foutname}', file=fout)
+            print(f'#begin [{command}] [{mtime}] > {foutname}', file=fout)
     # execute command in a separate process and quit
     process = multiprocessing.Process(target=execute_command, args=(command, foutname))
     process.start()

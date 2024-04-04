@@ -6,6 +6,6 @@ form: False
 requires_login: True
 ---
 
-# List of qs
+# List of queries
 
 
