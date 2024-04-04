@@ -2,7 +2,7 @@ title: Example Page
 date: 2024-03-25
 template: page.html
 navbar: True
-requires_login: False
+requires_login: True
 ---
 
 # Welcome to My Example Page
