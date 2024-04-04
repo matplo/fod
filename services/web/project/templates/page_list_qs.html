@@ -14,10 +14,12 @@
 
 <div class="container">
 	<ul class="list-group">
-		{% for qs in data.qs %}
-		<li class="list-group-item">
-			<a class="btn btn-link" href="/stream?q=cat+{{ qs }}">{{ qs }}</a>
-		</li>
+		{% for qs in pdata.qs %}
+		{% if qs is not none %}
+			<li class="list-group-item">
+				<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a>
+			</li>
+		{% endif %}
 		{% endfor %}
 	</ul>
 </div>

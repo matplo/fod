@@ -41,7 +41,7 @@ def process_input(command, link=False):
     process = multiprocessing.Process(target=execute_command, args=(command, foutname))
     process.start()
     # print(f"#pid pipe [{process.pid}]", file=fout)  # Print the PID - this would write to the file used by pipe...
-    return foutname
+    return foutname, process.pid
 
 
 def main():

@@ -122,8 +122,11 @@ def page(path):
     pdata = PageData()
     pdata.meta = page.meta
     if path == 'list_qs':
-        pdata.qs = redis_store.files.get_files_str()
-    return render_template(template, page=page, pages=flatpages, data=pdata, _external=False)
+        if redis_store.files:
+            pdata.qs = redis_store.files.get_files_dict()
+        else:
+            pdata.qs = []
+    return render_template(template, page=page, pages=flatpages, pdata=pdata, _external=False)
 
 
 @app.route('/form/<path:path>/', methods=['GET', 'POST'])
@@ -147,8 +150,8 @@ def result(path='result'):
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
-    result_fout = process_input(variable, link=True)
-    redis_store.files.add_file(result_fout)
+    result_fout, pid = process_input(variable, link=True)
+    redis_store.files.add_file(result_fout, pid)
     with open(result_fout, 'r') as f:
         lines = f.readlines()
     return render_template(template, page=page, pages=flatpages, result='\n'.join(lines), _external=False)
@@ -163,7 +166,7 @@ def stream(path='stream'):
     if variable is None or len(variable) == 0:
         return redirect(url_for('result', q='No command provided'))
     else:
-        cmnd_output_file = process_input(variable)
+        cmnd_output_file, _ = process_input(variable)
         time.sleep(0.1)  # sleep briefly before trying to stream
         stream_source = f'/stream_file?q={cmnd_output_file}'
     return render_template(template, page=page, pages=flatpages, stream_source=stream_source, _external=False)
