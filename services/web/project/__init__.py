@@ -114,9 +114,9 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            return redirect(url_for('result', q='login successful'))
+            return redirect(url_for('batch', q='login successful'))
         else:
-            return redirect(url_for('result', q='login failed'))
+            return redirect(url_for('batch', q='login failed'))
     return render_template(template, page=page, form=form)
 
 
@@ -124,7 +124,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    # return redirect(url_for('result', q='logout successful'))
+    # return redirect(url_for('batch', q='logout successful'))
     return redirect(url_for('page', path='home'))
 
 
@@ -180,7 +180,7 @@ def stream(path='stream'):
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
     if variable is None or len(variable) == 0:
-        return redirect(url_for('result', q='No command provided'))
+        return redirect(url_for('batch', q='No command provided'))
     else:
         cmnd_output_file, _ = process_input(variable)
         time.sleep(0.1)  # sleep briefly before trying to stream
