@@ -14,13 +14,34 @@
 
 <div class="container">
 	<ul class="list-group">
-		{% for qs in pdata.qs %}
-		{% if qs is not none %}
+		{% if pdata.qs is not none %}
+			{% for qs in pdata.qs %}
+				<li class="list-group-item">
+					<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a>
+				</li>
+			{% endfor %}
+		{% else %}
 			<li class="list-group-item">
-				<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">{{ qs.command }}</a>
+				No results found.
 			</li>
 		{% endif %}
-		{% endfor %}
+	</ul>
+</div>
+
+<div class="container">
+	<ul class="list-group">
+		<h2>pdata - debug</h2>
+		{% if pdata is not none %}
+			{% for x in pdata %}
+				<li class="list-group-item">
+					pdata.{{ x }}: {{ pdata[x] }}
+				</li>
+			{% endfor %}
+		{% else %}
+			<li class="list-group-item">
+				No pdata.
+			</li>
+		{% endif %}
 	</ul>
 </div>
 

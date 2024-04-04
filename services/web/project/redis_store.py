@@ -2,7 +2,9 @@
 from flask_redis import FlaskRedis
 from .page_data import GenericObject
 import os
-import pickle
+import json
+import logging
+logger = logging.getLogger('project')
 
 
 class RedisStoreApp(FlaskRedis):
@@ -19,9 +21,19 @@ class FileStat(GenericObject):
 
     def __init__(self, **kwargs):
         super(FileStat, self).__init__(**kwargs)
-        self.status = 'info'
-        self.command = 'unknown'
-        self.pid = 'unknown'
+        if self.status is None:
+            self.status = 'info'
+        if self.command is None:
+            self.command = 'unknown'
+        if self.pid is None:
+            self.pid = 'unknown'
+        self.verify()
+
+    def as_dict(self):
+        return {'filename': self.filename, 'status': self.status, 'command': self.command, 'pid': self.pid}
+
+    def as_json(self):
+        return json.dumps(self.as_dict())
 
     def verify(self):
         if not os.path.exists(self.filename):
@@ -32,6 +44,10 @@ class FileStat(GenericObject):
             if len(lines) == 0:
                 self.pid = 'unkown'
                 return False
+            self.command = lines[0].split('#begin [')[1].split(']')[0]
+            # if lines[-1].startswith(f'#end [{self.command}]'):
+            if lines[-1].startswith('#end ') and lines[-1].endswith(f'{self.filename}\n'):
+                self.status = 'success'
         return True
 
 
@@ -46,31 +62,23 @@ class RedisStoreExecFiles:
 
     def get_files_dict(self):
         _files = []
-        for k in self.redis_store.hkeys('files'):
+        for k in self.redis_store.hkeys('files'):            
             _file = self.get_file(k.decode())
             if _file is not None:
                 if _file.verify():
-                    # fdict = {'filename': _file.filename, 'status': _file.status, 'command': _file.command}
-                    fdict = {'filename': 'test', 'status': 'test', 'command': 'test'}
-                    _files.append(fdict)
-                else:
-                    self.remove_file(k.decode())
-            else:
-                self.remove_file(k.decode())
+                    _files.append(_file.as_dict())
         return _files
 
     def add_file(self, filename, pid=None):
         _file = FileStat(filename=filename, pid=pid)
-        if _file.verify():
-            _file_pickled = pickle.dumps(_file)
-            self.redis_store.hset('files', filename, _file_pickled)
-        else:
-            self.remove_file(filename)
+        if _file.verify():            
+            self.redis_store.hset('files', filename, _file.as_json())
+            self.get_file(filename)
 
     def get_file(self, filename):
-        _file_pickled = self.redis_store.hget('files', filename)
-        if _file_pickled is not None:
-            _file = pickle.loads(_file_pickled)
+        _file_json = self.redis_store.hget('files', filename).decode()
+        if _file_json is not None:
+            _file = FileStat(init_json=_file_json)            
             return _file
         return None
 

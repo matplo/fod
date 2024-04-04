@@ -1,4 +1,5 @@
 # page_data.py
+import json
 
 
 class GenericObject(object):
@@ -7,6 +8,12 @@ class GenericObject(object):
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             self.__setattr__(key, value)
+        if self.args:
+            self.configure_from_dict(self.args.__dict__)
+        if self.init_dict:
+            self.configure_from_dict(self.init_dict)
+        if self.init_json:
+            self.configure_from_json(self.init_json)
 
     def configure_from_args(self, **kwargs):
         for key, value in kwargs.items():
@@ -14,7 +21,14 @@ class GenericObject(object):
 
     def configure_from_dict(self, d, ignore_none=False):
         for k in d:
-            if d[k] is None:
+            if ignore_none and d[k] is None:
+                continue
+            self.__setattr__(k, d[k])
+
+    def configure_from_json(self, js, ignore_none=False):
+        d = json.loads(js)
+        for k in d:
+            if ignore_none and d[k] is None:
                 continue
             self.__setattr__(k, d[k])
 
@@ -53,6 +67,3 @@ class PageData(GenericObject):
 
     def __init__(self, **kwargs):
         super(PageData, self).__init__(**kwargs)
-        if self.args:
-            self.configure_from_dict(self.args.__dict__)
-        self.verbose = self.debug

@@ -121,6 +121,8 @@ def page(path):
     template = page.meta.get('template', 'page.html')
     pdata = PageData()
     pdata.meta = page.meta
+    pdata.redis = redis_store
+    pdata.init_name = __name__
     if path == 'list_qs':
         if redis_store.files:
             pdata.qs = redis_store.files.get_files_dict()
@@ -138,9 +140,9 @@ def form(path):
     if form.validate_on_submit():
         text = form.text.data
         flash('Form submitted successfully.')
-        if '.b' == text[:2]:
-            return redirect(url_for("result", q=text[3:]))
-        return redirect(url_for('stream', q=text))
+        if '.x' == text[:2]:
+            return redirect(url_for('stream', q=text[:3]))
+        return redirect(url_for("result", q=text))
     return render_template(template, page=page, pages=flatpages, form=form, _external=False)
 
 
