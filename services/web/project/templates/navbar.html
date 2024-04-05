@@ -8,7 +8,7 @@
       <!-- <li class="active"><a href="{{ url_for('page', path='home') }}">Home</a></li> -->
       {% for page in g.pages %}
         {% if current_user.is_authenticated or not page.meta['requires_login'] %}
-          {% if page.meta['navbar'] %}
+            {% if page.meta['navbar'] %}
             {% if page.meta['form'] %}
               <li> <a href="{{ url_for('page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
             {% else %}

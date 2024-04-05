@@ -1,9 +1,10 @@
 title: Home
 date: 2024-03-25
-template: page.html
+template: home.html
 navbar: False
 ---
 
 # Welcome.
 
 This page is a tool. Not much more.
+

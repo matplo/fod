@@ -1,6 +1,27 @@
 {% extends "page.html" %}
 {% block content %}
-<div class="container">
-    <h1>Welcome.</h1>
-</div>
+    {{ super() }}
+    {% if current_user.is_authenticated %}
+    <!-- User is logged in, you can display user-specific content here -->
+    <div class="container">
+        <div class="row">
+            {% for p in g.pages %}
+                {% if p.meta['navbar'] %}
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="container">
+                            <a href="{{ url_for('page', path=p.path) }}" class="btn btn-primary">{{ p.title }}</a>
+                            <p class="card-text">{{ p.date }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <!-- User is not logged in, you can display a login prompt or similar here -->
+    {% endif %}
 {% endblock %}

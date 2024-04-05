@@ -129,9 +129,9 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            return redirect(url_for('batch', q='login successful'))
+            return redirect(url_for('stream', q='login successful'))
         else:
-            return redirect(url_for('batch', q='login failed'))
+            return redirect(url_for('stream', q='login failed'))
     return render_template(template, page=page, form=form)
 
 
@@ -146,7 +146,7 @@ def logout():
 @app.route('/<path:path>/')
 def page(path):
     page = flatpages.get_or_404(path)
-    if page.meta.get('form', None) == 'True':
+    if page.meta.get('form', None) is True:
         return redirect(url_for('form', path=path))
     template = page.meta.get('template', 'page.html')
     g.pdata.meta = page.meta
