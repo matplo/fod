@@ -1,5 +1,10 @@
 #!/bin/bash
 
+[ -z ${FOD_DIR} ] && echo "FOD_DIR not set" && exit 1
+cd ${FOD_DIR}
+source ${FOD_DIR}/scripts/util.sh
+separator "${BASH_SOURCE}"
+
 # Step 1: Update python scripts, media files, templates, and pages
 # Assuming your updates are in a Git repository, you can pull the latest changes
 git pull
@@ -8,8 +13,8 @@ container_id=$(docker ps -qf "name=web")
 container_name=$(docker ps | grep ${container_id} | awk '{print $NF}')
 
 docker ps
-echo "Using container ID: $container_id"
-echo "Using container Name: $container_name"
+note_red "Using container ID: $container_id"
+note_red "Using container Name: $container_name"
 
 # Step 2: Copy the updated files to the Docker volumes
 # Replace /path/to/your/files with the actual path to your files
