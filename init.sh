@@ -11,6 +11,11 @@ function thisdir()
 }
 THISD=$(thisdir)
 export FOD_DIR=${THISD}
+if [[ ":$PATH:" == *":${FOD_DIR}:"* ]]; then
+	echo_warning "[w] FOD_DIR already in PATH"
+else
+	export PATH=${FOD_DIR}:${PATH}
+fi
 
 # Bash completion script
 _fod_bash_completion() {

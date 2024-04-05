@@ -5,16 +5,24 @@ OS=$(uname)
 DOCKER_VERSION=$(docker -v | cut -d ' ' -f3 | cut -d ',' -f1)
 
 web_container_id=$(docker ps -qf "name=web")
-web_container_name=$(docker ps | grep ${web_container_id} | awk '{print $NF}')
+if [ ! -z ${web_container_id} ]; then
+	web_container_name=$(docker ps | grep ${web_container_id} | awk '{print $NF}')
+fi
 
 nginx_container_id=$(docker ps -qf "name=nginx")
-nginx_container_name=$(docker ps | grep ${nginx_container_id} | awk '{print $NF}')
+if [ ! -z ${nginx_container_id} ]; then
+	nginx_container_name=$(docker ps | grep ${nginx_container_id} | awk '{print $NF}')
+fi
 
 redis_container_id=$(docker ps -qf "name=redis")
-redis_container_name=$(docker ps | grep ${redis_container_id} | awk '{print $NF}')
+if [ ! -z ${redis_container_id} ]; then
+	redis_container_name=$(docker ps | grep ${redis_container_id} | awk '{print $NF}')
+fi
 
 db_container_id=$(docker ps -qf "name=db")
-db_container_name=$(docker ps | grep ${db_container_id} | awk '{print $NF}')
+if [ ! -z ${db_container_id} ]; then
+	db_container_name=$(docker ps | grep ${db_container_id} | awk '{print $NF}')
+fi
 
 function abspath()
 {
