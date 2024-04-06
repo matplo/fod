@@ -16,7 +16,7 @@ echo_help_message()
 if [ ! -e ${FOD_DIR}/users.yaml ]; then
 	echo_warning "Creating empty users.yaml"
 	touch ${FOD_DIR}/users.yaml 
-	chmod a+rmx ${FOD_DIR}/users.yaml
+	chmod a+rwx ${FOD_DIR}/users.yaml
 fi
 
 
