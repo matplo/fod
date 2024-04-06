@@ -28,6 +28,7 @@ class Config(object):
     APP_YAML_CONFIG = f"{os.getenv('APP_FOLDER')}/project/config.yaml"
     BOOTSTRAP_SERVE_LOCAL = False
 
+
 def update_dict_from_yaml(d, yml=Config.APP_YAML_CONFIG):
     with open(yml, 'r') as f:
         d.update(yaml.safe_load(f))
