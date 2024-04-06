@@ -9,7 +9,8 @@ TEST_DIR=${FOD_DIR}/test
 mkdir -p ${TEST_DIR}
 cd ${TEST_DIR}
 if [ $1 == "clean" ]; then
-	rm -rf ./yasp ./requirements.txt
+	rm -rfv ./yasp ./requirements.txt
+	exit 0
 fi
 if [ ! -d yasp ]; then
 	git clone git@github.com:matplo/yasp.git

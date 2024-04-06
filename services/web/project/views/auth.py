@@ -1,5 +1,5 @@
 # auth.py
-from flask import Blueprint, render_template, redirect, url_for
+from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
 from project.models import User
 from project import flatpages
@@ -21,6 +21,8 @@ def login():
             login_user(user)
             return redirect(url_for('execs.stream', q='login successful'))
         else:
+            flash('Login failed.')
+            # return redirect(url_for('auth.login'))
             return redirect(url_for('execs.stream', q='login failed'))
     return render_template(template, page=page, form=form)
 
