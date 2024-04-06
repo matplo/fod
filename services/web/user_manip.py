@@ -65,7 +65,6 @@ def main():
     elif args.action == 'check':
         if not args.password:
             args.password = getpass('Password: ')
-            print(f'Got: {args.password}')
         users = load_users()
         for user in users:
             if user['username'] == args.username:
@@ -86,7 +85,6 @@ def main():
     elif args.action == 'update':
         if not args.password:
             args.password = getpass('Password: ')
-            print(f'Got: {args.password}')
         update_password(args.username, args.password)
 
 
