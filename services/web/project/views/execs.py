@@ -32,7 +32,7 @@ def form(path):
     form = MyForm()
     if form.validate_on_submit():
         text = form.text.data
-        flash('Form submitted successfully.')
+        # flash('Form submitted successfully.')
         if '.x' == text[:2]:
             return redirect(url_for('execs.stream', q=text[3:]))
         return redirect(url_for("execs.batch", q=text))
