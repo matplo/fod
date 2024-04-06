@@ -47,21 +47,24 @@ def update_password(username, new_password):
     save_users(users)
 
 
+
 def main():
     parser = argparse.ArgumentParser(description='Manage users.')
     parser.add_argument('action', choices=['add', 'check', 'delete', 'list', 'update'], help='The action to perform.')
-    parser.add_argument('--username', help='The username of the user.')
-    parser.add_argument('--email', help='The email of the user. Required for "add" action.')
-    parser.add_argument('--password', help='The password of the user. Required for "add", "check", "update" actions.')
+    parser.add_argument('-u', '--username', help='The username of the user.')
+    parser.add_argument('-e', '--email', help='The email of the user. Required for "add" action.')
+    parser.add_argument('-p', '--password', help='The password of the user.')
     args = parser.parse_args()
 
     if args.action == 'add':
-        if not args.email or not args.password:
-            parser.error('The --email and --password arguments are required for the "add" action.')
+        if not args.email:
+            args.email = input('Email: ')
+        if not args.password:
+            args.password = getpass('Password: ')
         add_user(args.username, args.email, args.password)
     elif args.action == 'check':
         if not args.password:
-            parser.error('The --password argument is required for the "check" action.')
+            args.password = getpass('Password: ')
         users = load_users()
         for user in users:
             if user['username'] == args.username:
