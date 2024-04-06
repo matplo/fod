@@ -12,8 +12,9 @@ def load_users():
 
 
 def save_users(users):
-    with open('users.yaml', 'w') as f:
-        yaml.dump(users, f)
+    if len(users) > 0:
+        with open('users.yaml', 'w') as f:
+            yaml.dump(users, f)
 
 
 def add_user(username, email, password, active=True):
@@ -26,25 +27,30 @@ def add_user(username, email, password, active=True):
     }
 
     users = load_users()
-    if username in [user['username'] for user in users]:
-        print('User already exists. Use update action to change password.')
-        return
+    if users:
+        if username in [user['username'] for user in users]:
+            print('User already exists. Use update action to change password.')
+            return
+    else:
+        users = []
     users.append(new_user)
     save_users(users)
 
 
 def delete_user(username):
     users = load_users()
-    users = [user for user in users if user['username'] != username]
-    save_users(users)
+    if users:
+        users = [user for user in users if user['username'] != username]
+        save_users(users)
 
 
 def update_password(username, new_password):
     users = load_users()
-    for user in users:
-        if user['username'] == username:
-            user['password_hash'] = generate_password_hash(new_password)
-    save_users(users)
+    if users:
+        for user in users:
+            if user['username'] == username:
+                user['password_hash'] = generate_password_hash(new_password)
+        save_users(users)
 
 
 
@@ -66,20 +72,23 @@ def main():
         if not args.password:
             args.password = getpass('Password: ')
         users = load_users()
-        for user in users:
-            if user['username'] == args.username:
-                if check_password_hash(user['password_hash'], args.password):
-                    print('Password is correct.')
-                else:
-                    print('Password is incorrect.')
-                break
+        if users:
+            for user in users:
+                if user['username'] == args.username:
+                    if check_password_hash(user['password_hash'], args.password):
+                        print('Password is correct.')
+                    else:
+                        print('Password is incorrect.')
+                    break
+            print('User not found.')
         else:
             print('User not found.')
     elif args.action == 'list':
         # print('Listing users...')
         users = load_users()
-        for user in users:
-            print(f"Username: {user['username']}, Email: {user['email']}, Active: {user['active']}")
+        if users:
+            for user in users:
+                print(f"Username: {user['username']}, Email: {user['email']}, Active: {user['active']}")
     elif args.action == 'delete':
         delete_user(args.username)
     elif args.action == 'update':

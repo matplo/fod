@@ -1,4 +1,0 @@
-- active: true
-  email: test@test.com
-  password_hash: scrypt:32768:8:1$fTuZuH1zll4tgRup$2daf898ea88b6526111125ce1bb7b538988908a2e3796f62098ef0867651348c0504d995c13e43ecb8f4db30cf22a89b21b02569157374951aff4fc47e5a0d16
-  username: test

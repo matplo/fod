@@ -13,6 +13,12 @@ echo_help_message()
 	echo_warning "    build: build the images before starting the environment"
 }
 
+if [ ! -e ${FOD_DIR}/users.yaml ]; then
+	echo_warning "Creating empty users.yaml"
+	touch ${FOD_DIR}/users.yaml 
+fi
+
+
 if [ "$1" == "dev" ]; then
 	if [ "$2" == "build" ]; then
 		docker-compose down -v
