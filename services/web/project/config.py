@@ -3,6 +3,8 @@ import yaml
 
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+if os.getenv('APP_FOLDER') is None:
+    os.environ['APP_FOLDER'] = os.path.dirname(basedir)
 
 
 class Config(object):

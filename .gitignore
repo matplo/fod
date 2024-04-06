@@ -6,3 +6,4 @@ __pycache
 .env.prod.db
 /users.yaml
 /services/db/*
+/test/*

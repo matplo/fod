@@ -1,6 +1,6 @@
 {% block navbar %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <a class="navbar-brand" href="{{ url_for('page', path='home') }}">Home</a>
+  <a class="navbar-brand" href="{{ url_for('home.index') }}">Home</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -10,9 +10,9 @@
         {% if current_user.is_authenticated or not page.meta['requires_login'] %}
             {% if page.meta['navbar'] %}
             {% if page.meta['form'] %}
-              <li class="nav-item"> <a class="nav-link" href="{{ url_for('page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
+              <li class="nav-item"> <a class="nav-link" href="{{ url_for('path.page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
             {% else %}
-              <li class="nav-item"> <a class="nav-link" href="{{ url_for('page', path=page.path) }}">{{ page.title }}</a> </li>
+              <li class="nav-item"> <a class="nav-link" href="{{ url_for('path.page', path=page.path) }}">{{ page.title }}</a> </li>
             {% endif %}
           {% endif %}
         {% endif %}
@@ -20,9 +20,9 @@
     </ul>
     <ul class="navbar-nav ml-auto">
       {% if current_user.is_authenticated %}
-      <li class="nav-item"> <a class="nav-link" href="{{ url_for('logout') }}">Logout [{{ current_user.username }}] </a> </li>
+      <li class="nav-item"> <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout [{{ current_user.username }}] </a> </li>
       {% else %}
-      <li class="nav-item"> <a class="nav-link" href="{{ url_for('login') }}">Login</a> </li>
+      <li class="nav-item"> <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a> </li>
       {% endif %}
     </ul>
   </div>
