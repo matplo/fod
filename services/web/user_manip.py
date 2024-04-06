@@ -76,7 +76,7 @@ def main():
         else:
             print('User not found.')
     elif args.action == 'list':
-        print('Listing users...')
+        # print('Listing users...')
         users = load_users()
         for user in users:
             print(f"Username: {user['username']}, Email: {user['email']}, Active: {user['active']}")
