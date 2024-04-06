@@ -73,16 +73,19 @@ def main():
             args.password = getpass('Password: ')
         users = load_users()
         if users:
+            ufound = False
             for user in users:
                 if user['username'] == args.username:
+                    ufound = True
                     if check_password_hash(user['password_hash'], args.password):
                         print('Password is correct.')
                     else:
                         print('Password is incorrect.')
                     break
-            print('User not found.')
+            if ufound is False:
+                print('User not found.')
         else:
-            print('User not found.')
+            print('No users.')
     elif args.action == 'list':
         # print('Listing users...')
         users = load_users()
