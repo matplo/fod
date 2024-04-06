@@ -10,15 +10,14 @@
 <form method="POST">
     {{ form.hidden_tag() }}
     <div class="row">
-        <div class="col-8">
+        <div class="col-12">
             {{ form.text.label }}
-        </div>
-        <div class="col-8">
             {{ form.text(class="form-control") }}
         </div>
-        <!-- Add more fields as needed -->
-        <div class="col-8">
-            {{ form.submit(class="btn btn-primary w-100") }}  <!-- Add w-100 class here -->
+    </div>
+    <div class="row">
+        <div class="col-12">
+            {{ form.submit(class="btn btn-primary w-100") }}
         </div>
     </div>
 </form>
@@ -26,7 +25,5 @@
 
 </div>
 {% endif %}
-
-{% include "footer.html" %}
 
 {% endblock %}

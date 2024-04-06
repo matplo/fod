@@ -1,4 +1,5 @@
 import os
+from flask_bootstrap import Bootstrap4
 
 from flask import (
     Flask,
@@ -24,7 +25,6 @@ from werkzeug.utils import secure_filename
 from werkzeug.middleware.proxy_fix import ProxyFix
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from flask_bootstrap import Bootstrap
 from flask_flatpages import FlatPages
 from flask_login import (
     LoginManager,
@@ -50,7 +50,8 @@ app = Flask(__name__)
 app.debug = False
 login_manager = LoginManager()
 login_manager.init_app(app)
-bs = Bootstrap(app)
+# bs = Bootstrap(app)
+bs = Bootstrap4(app)
 flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
 # note you can leave config.py alone and use config.yaml to override settings

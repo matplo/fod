@@ -26,7 +26,7 @@ class Config(object):
     WEB_TITLE = 'Test App'
     WEB_DESCRIPTION = 'A test app'
     APP_YAML_CONFIG = f"{os.getenv('APP_FOLDER')}/project/config.yaml"
-
+    BOOTSTRAP_SERVE_LOCAL = False
 
 def update_dict_from_yaml(d, yml=Config.APP_YAML_CONFIG):
     with open(yml, 'r') as f:

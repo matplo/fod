@@ -7,11 +7,11 @@
 {% include "navbar.html" %}
 
 {% block content %}
-
 <div class="container">
 	{{ page.html | safe }}
 </div>
+{% endblock %}
 
+{% block footer %}
 {% include "footer.html" %}
-
 {% endblock %}

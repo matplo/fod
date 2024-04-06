@@ -9,7 +9,7 @@ form: False
 # App Debug Info 
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#configInfoModal">
+<button type="button" class="btn btn-light" data-toggle="modal" data-target="#configInfoModal">
   Show some app intergal settings
 </button>
 
@@ -32,7 +32,7 @@ form: False
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        <!-- <button type="button" class="btn btn-light">Save changes</button> -->
       </div>
     </div>
   </div>
@@ -41,7 +41,7 @@ form: False
 # Working Installation requirements.txt
 
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#requirementsModal">
+<button type="button" class="btn btn-light" data-toggle="modal" data-target="#requirementsModal">
   Dump of `pip freeze`
 </button>
 
@@ -123,7 +123,7 @@ WTForms==3.1.2
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        <!-- <button type="button" class="btn btn-light">Save changes</button> -->
       </div>
     </div>
   </div>
