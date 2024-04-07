@@ -43,10 +43,12 @@ app.config.from_object("project.config.Config")
 update_dict_from_yaml(app.config)
 
 
+from project.scripts.custom_render import custom_render
 # Define the markdown renderer
 def custom_render_template(text):
     prerendered_body = render_template_string(text)
-    return markdown.markdown(prerendered_body, extensions=app.config['FLATPAGES_MARKDOWN_EXTENSIONS'])
+    md_body = markdown.markdown(prerendered_body, extensions=app.config['FLATPAGES_MARKDOWN_EXTENSIONS'])
+    return custom_render(md_body)
 
 
 # Set up the custom renderer

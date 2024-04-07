@@ -25,3 +25,4 @@ Flask-PageDown
 Flask-Images
 Flask-Redis
 pyyaml
+beautifulsoup4
