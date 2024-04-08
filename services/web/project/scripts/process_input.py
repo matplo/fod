@@ -6,6 +6,7 @@ from tempfile import mktemp
 import multiprocessing
 import argparse
 import os
+from flask import g
 
 # This is to execute arbitrary command with
 # - exeute a thread with the command
@@ -32,7 +33,11 @@ def get_link_button(fname, text):
 
 
 def process_input(command, link=False):
-    foutname = mktemp()
+    fout_dir = os.path.join(g.config["STATIC_FOLDER"], 'proc_out')
+    if not os.path.exists(fout_dir):
+        os.makedirs(fout_dir)
+    foutname = mktemp(dir=fout_dir)
+    # relhttp = foutname.replace(g.config["STATIC_FOLDER"], 'static')
     with open(foutname, 'w') as fout:
         mtime = os.path.getmtime(foutname)
         if link:

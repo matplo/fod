@@ -24,6 +24,10 @@
 						{% else %}
 						<a class="btn btn-{{ qs.status }}" href="/stream?q=cat+{{ qs.filename }}">Log file</a> - {{ qs.cctime }} - {{ qs.cmtime }} - {{ qs.mtime }}
 					{% endif %}
+					PID: {{ qs.pid }}
+					<!-- {% if qs.status == "running" %} -->
+					<!-- 	<a class="btn btn-danger" href="/stream?q=kill+{{ qs.pid }}">Kill</a> -->
+					<!-- {% endif %} -->
 					</div>
 				</li>
 			{% else %}
