@@ -2,6 +2,7 @@
 import json
 from flask import current_app
 import yaml
+import os
 
 
 class GenericObject(object):
@@ -37,7 +38,15 @@ class GenericObject(object):
             self.__setattr__(k, d[k])
 
     def configure_from_yaml(self, yml, ignore_none=False):
+        d = None
+        if type(yml) is str:
+            yml = yml.encode("utf-8")
+            if os.path.exists(yml):
+                with open(yml, 'r') as _f:
+                    yml = _f.read()
         d = yaml.safe_load(yml)
+        if not isinstance(d, dict):
+            raise ValueError("Invalid YAML input")
         for k in d:
             if ignore_none and d[k] is None:
                 continue
