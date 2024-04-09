@@ -23,6 +23,10 @@ docker cp services/web/project/media/. ${container_name}:/home/app/web/project/m
 docker cp services/web/project/pages/. ${container_name}:/home/app/web/project/pages
 docker cp services/web/project/templates/. ${container_name}:/home/app/web/project/templates
 
+if [ -d services/web/project/scripts/external ]; then
+	docker cp services/web/project/scripts/external ${container_name}:/home/app/web/project/scripts
+fi
+
 # Find all .py files and copy them to the corresponding directories in the Docker container
 find services/web -name '*.py' | while read file; do
     docker cp "$file" "${container_name}:/home/app/web/${file#services/web/}"
@@ -34,6 +38,8 @@ find services/web -name '*.yaml' | while read file; do
     docker cp "$file" "${container_name}:/home/app/web/${file#services/web/}"
     # echo "$file" "->" "${container_name}:/home/app/web/${file#services/web/}"
 done
+
+${FOD_DIR}/fod.sh web_exec chown -R app:app /home/app/
 
 # Step 3: Restart gunicorn or the whole web service
 # This command restarts the web service
