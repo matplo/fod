@@ -4,7 +4,7 @@ __pycache
 .env.dev
 .env.prod
 .env.prod.db
-./users.yaml
+users.yaml
 /services/db/*
 /test/*
 *.log
