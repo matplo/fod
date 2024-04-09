@@ -8,3 +8,5 @@ users.yaml
 /services/db/*
 /test/*
 *.log
+**/external/*
+

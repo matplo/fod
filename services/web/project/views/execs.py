@@ -6,6 +6,7 @@ from flask import (
     redirect,
     url_for,
     render_template,
+    render_template_string,
     request,
     Response,
     stream_with_context,
@@ -19,9 +20,24 @@ import subprocess
 import shlex
 import os
 from project import app
-
+from project.scripts.exec_result import exec_result
 
 bp = Blueprint('execs', __name__)
+
+
+@bp.route('/formexec/<path:path>/', methods=['GET', 'POST'])
+@login_required
+def formexec(path):
+    page = flatpages.get_or_404(path)
+    template = page.meta.get('template', 'page.html')
+    execute = page.meta.get('execute', None)
+    form_module_name = page.meta.get('formexec', None)
+    form_module = __import__(f'project.scripts.external.{form_module_name}', fromlist=['Form'])
+    form = getattr(form_module, 'Form')
+    if form.validate_on_submit():
+        if execute is not None:
+            return render_template(template, page=page, form=form, result=exec_result(execute, form.data))
+    return render_template(template, page=page, form=form, result=None)
 
 
 @bp.route('/form/<path:path>/', methods=['GET', 'POST'])
@@ -32,7 +48,6 @@ def form(path):
     form = MyForm()
     if form.validate_on_submit():
         text = form.text.data
-        # flash('Form submitted successfully.')
         if '.x' == text[:2]:
             return redirect(url_for('execs.stream', q=text[3:]))
         return redirect(url_for("execs.batch", q=text))

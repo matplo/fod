@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function thisdir()
 {
 	SOURCE="${BASH_SOURCE[0]}"
@@ -24,7 +26,7 @@ _fod_bash_completion() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     # opts="--help --verbose --version"
-		cmnds=$(ls ${FOD_DIR}/scripts | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
+    cmnds=$(ls ${FOD_DIR}/scripts | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
     # if [[ ${cur} == -* ]] ; then
     if [[ ${cur} == * ]] ; then
         COMPREPLY=( $(compgen -W "${cmnds}" -- ${cur}) )

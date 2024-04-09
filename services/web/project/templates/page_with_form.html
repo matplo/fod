@@ -2,28 +2,35 @@
 
 {% block content %}
 
-<div class="container">
-        {{ page.html | safe }}
+    {{ super() }}
 
-{% if page.meta['form'] %}
-<div class="container">
-<form method="POST">
-    {{ form.hidden_tag() }}
-    <div class="row">
-        <div class="col-12">
-            {{ form.text.label }}
-            {{ form.text(class="form-control") }}
+    {% if page.meta['form'] %}
+        <div class="container">
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="row">
+                <div class="col-12">
+                    {{ form.text.label }}
+                    {{ form.text(class="form-control") }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    {{ form.submit(class="btn btn-primary w-100") }}
+                </div>
+            </div>
+        </form>
+        </div>    
+    {% endif %}
+
+    {% if result %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>{{ Result }}</h1>
+                {{ result }}
+            </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-12">
-            {{ form.submit(class="btn btn-primary w-100") }}
-        </div>
-    </div>
-</form>
-</div>
-
-</div>
-{% endif %}
-
+    {% endif %}
 {% endblock %}

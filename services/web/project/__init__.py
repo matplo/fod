@@ -65,14 +65,6 @@ redis_store.init_app(app)
 # Set up the pdata extension
 pdata_ext = PageDataExtension(app)
 
-
-# import models here
-from project.models.user import User
-# Register blueprints here
-import project.scripts.utils as putils
-putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'))
-
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -90,6 +82,13 @@ def before_request():
     g.pdata.qs_list = None
     g.pdata.last_qs = None
     g.config = app.config
+
+
+# import models here
+from project.models.user import User
+# Register blueprints here
+import project.scripts.utils as putils
+putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'))
 
 
 @app.errorhandler(Exception)
