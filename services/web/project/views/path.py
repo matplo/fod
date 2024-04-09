@@ -11,7 +11,7 @@ def page(path):
     page = flatpages.get_or_404(path)
     if page.meta.get('form', None) is True:
         return redirect(url_for('execs.form', path=path))
-    if page.meta.get('formexec', None) is True:
+    if page.meta.get('formexec', None):
         return redirect(url_for('execs.formexec', path=path))
     template = page.meta.get('template', 'page.html')
     g.pdata.meta = page.meta
