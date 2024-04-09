@@ -1,35 +1,26 @@
 # Dockerizing Flask with Postgres, Gunicorn, and Nginx
 
-## Want to learn how to build this?
+- built on top of https://github.com/testdrivenio/flask-on-docker
+- added some extra features (https only, redis, dynamic execution of scripts based on template.meta data etc)
+- note: only "Production" functional
 
-Check out the [tutorial](https://testdriven.io/blog/dockerizing-flask-with-postgres-gunicorn-and-nginx).
+## Startup
 
-## Want to use this project?
+- make sure to put your certificates in `./certificates`
 
-### Development
+```
+-rw-r--r--  cert.pem
+-rw-------  privkey.pem
+```
 
-Uses the default Flask development server.
+- then
 
-1. Rename *.env.dev-sample* to *.env.dev*.
-1. Update the environment variables in the *docker-compose.yml* and *.env.dev* files.
-    - (M1 chip only) Remove `-slim-buster` from the Python dependency in `services/web/Dockerfile` to suppress an issue with installing psycopg2
-1. Build the images and run the containers:
+```
+. ./init.sh
+prod.sh up prod build
+```
 
-    ```sh
-    $ docker-compose up -d --build
-    ```
+- visit: https://localhost
 
-    Test it out at [http://localhost:5000](http://localhost:5000). The "web" folder is mounted into the container and your code changes apply automatically.
-
-### Production
-
-Uses gunicorn + nginx.
-
-1. Rename *.env.prod-sample* to *.env.prod* and *.env.prod.db-sample* to *.env.prod.db*. Update the environment variables.
-1. Build the images and run the containers:
-
-    ```sh
-    $ docker-compose -f docker-compose.prod.yml up -d --build
-    ```
-
-    Test it out at [http://localhost:1337](http://localhost:1337). No mounted folders. To apply changes, the image must be re-built.
+- hint: use tab after typing `prod.sh` - some predefined util scripts/commands available
+    - for example: `prod.sh hot_update` puts things into web image and restarts it - updates available pronto
