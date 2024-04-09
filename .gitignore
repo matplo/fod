@@ -7,3 +7,4 @@ __pycache
 ./users.yaml
 /services/db/*
 /test/*
+*.log
