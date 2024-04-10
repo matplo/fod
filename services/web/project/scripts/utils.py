@@ -2,7 +2,6 @@
 import logging.handlers
 import os
 import importlib.util
-from project import app
 import fnmatch
 import logging
 
@@ -28,7 +27,7 @@ def find_files(rootdir='.', pattern='*'):
 # app.register_blueprint(home_bp)
 # ...
 # the below we use importlib
-def register_blueprints_from_dir(view_dir):
+def register_blueprints_from_dir(view_dir, app):
     for filename in find_files(view_dir, '*.py'):
         module_name = os.path.basename(filename)[:-3]  # remove the .py extension
         if module_name == '__init__':

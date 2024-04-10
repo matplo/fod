@@ -84,7 +84,7 @@ def before_request():
 from project.models.user import User
 # Register blueprints here
 # import project.scripts.utils as putils
-putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'))
+putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'), app)
 
 
 @app.errorhandler(Exception)
