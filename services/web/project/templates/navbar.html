@@ -9,8 +9,15 @@
       {% for page in g.pages %}
         {% if current_user.is_authenticated or not page.meta['requires_login'] %}
             {% if page.meta['navbar'] %}
+            <!-- 
             {% if page.meta['form'] %}
               <li class="nav-item"> <a class="nav-link" href="{{ url_for('path.page', path='/form/'+page.path) }}">{{ page.title }}</a> </li>
+            {% else %}
+              <li class="nav-item"> <a class="nav-link" href="{{ url_for('path.page', path=page.path) }}">{{ page.title }}</a> </li>
+            {% endif %}
+            -->
+            {% if page.meta['route'] %}
+              <li class="nav-item"> <a class="nav-link" href="{{ url_for(page.meta['route'], path=page.path) }}">{{ page.title }}</a> </li>
             {% else %}
               <li class="nav-item"> <a class="nav-link" href="{{ url_for('path.page', path=page.path) }}">{{ page.title }}</a> </li>
             {% endif %}

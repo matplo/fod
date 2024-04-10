@@ -1,4 +1,5 @@
 # execs.py
+
 from flask_login import login_required
 from flask import (
     Blueprint,
@@ -21,6 +22,9 @@ import shlex
 import os
 from project import app
 from project.scripts.exec_result import exec_result
+import project.scripts.utils as putils
+logger = putils.setup_logger(__name__)
+
 
 bp = Blueprint('execs', __name__)
 
@@ -44,6 +48,7 @@ def formexec(path):
 @bp.route('/form/<path:path>/', methods=['GET', 'POST'])
 @login_required
 def form(path):
+    logger.info(f'/form path: {path}')
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
     form = MyForm()
@@ -58,6 +63,7 @@ def form(path):
 @bp.route('/batch', methods=['GET', 'POST'])
 @login_required
 def batch(path='batch'):
+    logger.info(f'/batch path: {path}')
     # page = flatpages.get_or_404(path)
     # template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
@@ -73,6 +79,7 @@ def batch(path='batch'):
 @bp.route('/stream', methods=['GET', 'POST'])
 @login_required
 def stream(path='stream'):
+    logger.info(f'/stream path: {path}')
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)

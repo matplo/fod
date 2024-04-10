@@ -9,10 +9,14 @@ separator "${BASH_SOURCE}"
 # Assuming your updates are in a Git repository, you can pull the latest changes
 git pull
 
+docker ps
 container_id=$(docker ps -qf "name=web")
+if [ -z ${container_id} ]; then
+    note_red "Web container not found. Exiting..."
+    exit 1
+fi
 container_name=$(docker ps | grep ${container_id} | awk '{print $NF}')
 
-docker ps
 note_red "Using container ID: $container_id"
 note_red "Using container Name: $container_name"
 
@@ -35,6 +39,7 @@ done
 #     # echo "$file" "->" "${container_name}:/home/app/web/${file#services/web/}"
 # done
 
+${FOD_DIR}/fod.sh web_exec rm app.log
 ${FOD_DIR}/fod.sh web_exec chown -R app:app /home/app/
 
 # Step 3: Restart gunicorn or the whole web service

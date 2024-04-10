@@ -1,10 +1,13 @@
 {% extends "base.html" %}
+{% from 'bootstrap4/utils.html' import render_messages %}
 
 {% block header %}
 	<title>{{ page.title }}</title>
 {% endblock %}
 
 {% include "navbar.html" %}
+
+{{ render_messages() }}
 
 {% block content %}
 <div class="container">

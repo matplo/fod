@@ -19,9 +19,8 @@ from project.scripts.page_data import PageDataExtension
 from .config import update_dict_from_yaml
 
 
-import logging
-from logging.handlers import RotatingFileHandler
 import markdown
+import project.scripts.utils as putils
 
 
 # Create the Flask app
@@ -53,10 +52,7 @@ app.config['FLATPAGES_HTML_RENDERER'] = custom_render_template
 # this is important for docker/nginx setup
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 # Set up logging
-handler = RotatingFileHandler('app.log', maxBytes=10000, backupCount=0)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-logger.addHandler(handler)
+logger = putils.setup_logger(__name__)
 # Set up the database
 db = SQLAlchemy(app)
 # Set up the redis store custom class
@@ -87,7 +83,7 @@ def before_request():
 # import models here
 from project.models.user import User
 # Register blueprints here
-import project.scripts.utils as putils
+# import project.scripts.utils as putils
 putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'))
 
 
