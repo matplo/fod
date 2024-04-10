@@ -1,4 +1,5 @@
 {% extends "page.html" %}
+{% from 'bootstrap4/form.html' import render_form %}
 
 {% block content %}
 
@@ -6,20 +7,11 @@
 
     {% if page.meta['form'] %}
         <div class="container">
-        <form method="POST">
-            {{ form.hidden_tag() }}
             <div class="row">
-                <div class="col-12">
-                    {{ form.text.label }}
-                    {{ form.text(class="form-control") }}
+	            <div class="col-12">
+                    {{ render_form(form) }}
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12">
-                    {{ form.submit(class="btn btn-primary w-100") }}
-                </div>
-            </div>
-        </form>
         </div>    
     {% endif %}
 
