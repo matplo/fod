@@ -16,3 +16,4 @@ def staticfiles(filename):
 @bp.route("/media/<path:filename>")
 def mediafiles(filename):
     return send_from_directory(app.config["MEDIA_FOLDER"], filename)
+

@@ -16,6 +16,7 @@ from project.forms.base_forms import MyForm
 from project.scripts.process_input import process_input
 from project import flatpages, g
 from werkzeug.utils import secure_filename
+from project.forms.base_forms import UploadForm
 import time
 import subprocess
 import shlex
@@ -131,17 +132,35 @@ def execute_script():
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
+# @bp.route("/upload", methods=["GET", "POST"])
+# @login_required
+# def upload_file():
+#     if request.method == "POST":
+#         file = request.files["file"]
+#         filename = secure_filename(file.filename)
+#         file.save(os.path.join(app.config["MEDIA_FOLDER"], filename))
+#     return """
+#     <!doctype html>
+#     <title>upload new File</title>
+#     <form action="" method=post enctype=multipart/form-data>
+#       <p><input type=file name=file><input type=submit value=Upload>
+#     </form>
+#     """
+
+
 @bp.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload_file():
-    if request.method == "POST":
-        file = request.files["file"]
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config["MEDIA_FOLDER"], filename))
-    return """
-    <!doctype html>
-    <title>upload new File</title>
-    <form action="" method=post enctype=multipart/form-data>
-      <p><input type=file name=file><input type=submit value=Upload>
-    </form>
-    """
+    form = UploadForm()
+    page = flatpages.get_or_404("upload")
+    template = page.meta.get("template", "page.html")
+    if form.validate_on_submit():
+        filename = secure_filename(form.file.data.filename)
+        form.file.data.save(os.path.join(app.config["STATIC_FOLDER"], filename))
+        flash(f"File {filename} uploaded successfully.", 'success')
+        return redirect(url_for("execs.upload_file"))
+    else:
+        if len(form.errors):
+            _serr = ' '.join([f"{k}: {v}" for k, v in form.errors.items()])
+            flash(f"File upload failed. Errors: {_serr}", 'danger')
+    return render_template(template, page=page, form=form)

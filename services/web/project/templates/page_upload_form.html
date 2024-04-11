@@ -1,0 +1,48 @@
+{% extends "page.html" %}
+{% from 'bootstrap4/form.html' import render_form %}
+
+{% block content %}
+
+    {{ super() }}
+
+    {% if page.meta['form'] %}
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        <div class="custom-file">
+                            {{ form.file(class="custom-file-input", id="customFile") }}
+                            <label class="custom-file-label" for="customFile" id="customFileLabel">Choose file</label>
+                            {% for error in form.file.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </form>
+                </div>
+            </div>
+        </div>    
+    {% endif %}
+
+    {% if result %}
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h1>{{ Result }}</h1>
+                {{ result }}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    document.getElementById('customFile').addEventListener('change', function() {
+        var fileName = document.getElementById('customFile').value.split('\\').pop();
+        document.getElementById('customFileLabel').textContent = fileName;
+    });
+</script>
+{% endblock %}
