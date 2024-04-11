@@ -79,19 +79,6 @@ def before_request():
     g.pdata.last_qs = None
     g.config = app.config
 
-@app.before_request
-def before_request():
-    g.page = None
-    g.pages = flatpages
-    g.pdata = pdata_ext.data
-    g.user = current_user
-    g.redis = redis_store
-    g.pdata.meta = None
-    g.pdata.form = None
-    g.pdata.qs_list = None
-    g.pdata.last_qs = None
-    g.config = app.config
-
 # import models here
 from project.models.user import User
 # Register blueprints here

@@ -24,6 +24,9 @@
       <div class="modal-body">
         Time elapsed: <a id="counter"></a>s.
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="stopButton">Stop</button>
+      </div>
     </div>
   </div>
 </div>
@@ -40,6 +43,13 @@
     // Show the modal immediately when the page loads
     $(document).ready(function() {
         streamModal.modal('show');
+    });
+
+var redirectUrl = "{{ url_for('/list_qs') }}";
+
+    document.getElementById('stopButton').addEventListener('click', function() {
+        clearInterval(intervalId);
+        window.location.href = redirectUrl;
     });
 
 		// Start a loop that queries the server every second
