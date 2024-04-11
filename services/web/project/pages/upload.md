@@ -4,6 +4,8 @@ template: page_upload_form.html
 navbar: True
 form: True
 routing: execs.upload_file
+requires_login: True
+
 ---
 
 # Upload
