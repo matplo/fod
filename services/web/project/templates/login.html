@@ -10,37 +10,9 @@
 <div class="container">
     <div class="row">
         <div class="col-12">
-                    {{ render_form(form) }}
-                    </div>
+          {{ render_form(form) }}
+        </div>
     </div>
 </div>    
 
 {% endblock %}
-
-{% block scripts %}
-{{ super() }}
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            <div class="modal" tabindex="-1" role="dialog" id="messageModal" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Alert</h5>
-                </div>
-                <div class="modal-body">
-                    <p>{{ messages[0] }}</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-                </div>
-            </div>
-            </div>
-            <script>
-            $(document).ready(function() {
-                $('#messageModal').modal('show');
-            });
-            </script>
-        {% endif %}
-        {% endwith %}
-{% endblock scripts %}

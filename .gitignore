@@ -9,4 +9,4 @@ users.yaml
 /test/*
 *.log
 **/external/*
-
+/services/web/project/config.yaml

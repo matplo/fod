@@ -2,12 +2,15 @@
 {% from 'bootstrap4/utils.html' import render_messages %}
 
 {% block header %}
-	<title>{{ page.title }}</title>
+<title>{{ page.title }}</title>
+{{ super() }}
 {% endblock %}
 
 {% include "navbar.html" %}
 
+{% block topbody %}
 {{ render_messages() }}
+{% endblock %}
 
 {% block content %}
 <div class="container">

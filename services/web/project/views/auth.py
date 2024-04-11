@@ -19,12 +19,12 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            flash('Login successful.', 'info')
+            flash('Login successful.', 'success')
             return redirect(url_for('execs.stream', q='echo "login successful"'))
         else:
-            flash('Login failed.', 'danger')
-            # return redirect(url_for('auth.login'))
-            return redirect(url_for('execs.stream', q='echo "login failed"'))
+            flash('Login failed.' , 'danger')
+            return redirect(url_for('auth.login'))
+            # return redirect(url_for('execs.stream', q='echo "login failed"'))
     return render_template(template, page=page, form=form)
 
 
