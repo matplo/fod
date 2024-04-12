@@ -12,9 +12,11 @@ function thisdir()
 	echo ${DIR}
 }
 THISD=$(thisdir)
-export FOD_DIR=${THISD}
+if [ -z ${FOD_DIR} ]; then
+	export FOD_DIR=$(dirname ${THISD})
+fi
 
-source ${THISD}/scripts/util.sh
+source ${FOD_DIR}/scripts/util.sh
 separator "fod: ${BASH_SOURCE}"
 
 
@@ -23,7 +25,7 @@ opt=$1
 if [ ! -z ${help} ] || [ -z ${opt} ]; then
 	echo "[i] usage: ${BASH_SOURCE[0]} [--help] command"
 	echo "    --help: print this help message"
-	cmnds=$(ls ${FOD_DIR}/scripts | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
+	cmnds=$(ls ${FOD_DIR}/scripts | grep -v fod.sh | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
 	echo "    command: the command to run - any from ${cmnds}"
 	exit 0
 fi

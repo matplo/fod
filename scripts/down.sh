@@ -12,10 +12,18 @@ echo_help_message()
 	echo_warning "    prod: start the production environment"
 }
 
-if [ "$1" == "dev" ]; then
+what=$1
+if [ -z "$what" ]; then
+	echo_warning "[i] No argument provided - assuming prod"
+	echo_help_message
+	what="prod"
+	echo_help_message
+fi
+
+if [ "$what" == "dev" ]; then
 	docker-compose down
 	exit 0
-elif [ "$1" == "prod" ]; then
+elif [ "$what" == "prod" ]; then
 	docker-compose -f docker-compose.prod.yml down
 	exit 0
 else

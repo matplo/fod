@@ -39,8 +39,8 @@ find services/web -name '*.yaml' | while read file; do
     # echo "$file" "->" "${container_name}:/home/app/web/${file#services/web/}"
 done
 
-${FOD_DIR}/fod.sh web_exec rm app.log
-${FOD_DIR}/fod.sh web_exec chown -R app:app /home/app/
+${FOD_DIR}/scripts/fod.sh web_exec rm app.log
+${FOD_DIR}/scripts/fod.sh web_exec chown -R app:app /home/app/
 
 # Step 3: Restart gunicorn or the whole web service
 # This command restarts the web service

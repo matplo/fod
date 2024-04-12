@@ -19,8 +19,16 @@ if [ ! -e ${FOD_DIR}/users.yaml ]; then
 	chmod a+rwx ${FOD_DIR}/users.yaml
 fi
 
+what=$1
+if [ -z "$what" ]; then
+	echo_warning "[i] No argument provided - assuming prod"
+	echo_help_message
+	what="prod"
+	echo_help_message
+fi
 
-if [ "$1" == "dev" ]; then
+
+if [ "$what" == "dev" ]; then
 	if [ "$2" == "build" ]; then
 		docker-compose down -v
 		docker-compose up -d --build
@@ -28,7 +36,7 @@ if [ "$1" == "dev" ]; then
 		docker-compose down
 		docker-compose up -d
 	fi
-elif [ "$1" == "prod" ]; then
+elif [ "$what" == "prod" ]; then
 	if [ "$2" == "build" ]; then
 		docker-compose -f docker-compose.prod.yml down -v
 		docker-compose -f docker-compose.prod.yml up -d --build

@@ -19,6 +19,8 @@ else
 	export PATH=${FOD_DIR}:${PATH}
 fi
 
+alias fod='${THISD}/scripts/fod.sh'
+
 # Bash completion script
 _fod_bash_completion() {
     local cur prev opts
@@ -26,11 +28,11 @@ _fod_bash_completion() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     # opts="--help --verbose --version"
-    cmnds=$(ls ${FOD_DIR}/scripts | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
+	cmnds=$(ls ${FOD_DIR}/scripts | grep -v fod.sh | grep -v util.sh | sed 's/\.sh//g' | tr '\n' ' ' | sort)
     # if [[ ${cur} == -* ]] ; then
     if [[ ${cur} == * ]] ; then
         COMPREPLY=( $(compgen -W "${cmnds}" -- ${cur}) )
         return 0
     fi
 }
-complete -F _fod_bash_completion fod.sh
+complete -F _fod_bash_completion fod
