@@ -4,8 +4,7 @@ template: page_list_qs.html
 navbar: True
 form: False
 requires_login: True
+group: tools
 ---
 
 # List of queries
-
-

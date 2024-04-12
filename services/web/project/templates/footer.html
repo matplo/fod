@@ -3,7 +3,11 @@
   <div class="container text-right">
     <!-- <em><span class="text-muted">{{ page.title }} - published on {{ page.meta['date'] }}</span></em> -->
     {% if current_user.is_authenticated %}
-      <em><span class="text-muted">Using {{ page.meta['template'] }} template {{ page.meta['date'] }}</span></em>
+      <!-- <em><span class="text-muted">Using {{ page.meta['template'] }} template {{ page.meta['date'] }}</span></em> <br> -->
+      <em style="font-size: 0.7em;"><span class="text-muted">Meta:</span></em> <br>
+      {% for k in page.meta %}
+        <em style="font-size: 0.7em;"><span class="text-muted"> {{ k }} = {{ page.meta[k] }}</span></em> <br>
+      {% endfor %}
     {% endif %}
   </div>
 </footer>

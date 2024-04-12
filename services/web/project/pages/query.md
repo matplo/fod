@@ -4,6 +4,7 @@ template: page_with_form.html
 navbar: True
 form: True
 requires_login: True
+group: tools
 ---
 
 # This is to test the form input

@@ -5,7 +5,7 @@ navbar: True
 form: True
 routing: execs.upload_file
 requires_login: True
-
+group: tools
 ---
 
 # Upload

@@ -45,7 +45,7 @@
         streamModal.modal('show');
     });
 
-var redirectUrl = "{{ url_for('/list_qs') }}";
+var redirectUrl = "{{ url_for('path.page', path='list_qs') }}";
 
     document.getElementById('stopButton').addEventListener('click', function() {
         clearInterval(intervalId);

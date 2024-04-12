@@ -4,6 +4,7 @@ template: page_with_stream.html
 result: False
 stream: True
 navbar: False
+group: tools
 ---
 
 # Result of your request
