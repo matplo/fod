@@ -7,24 +7,23 @@
   <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav mr-auto">
       {% for group in g.pages|selectattr('meta.group', 'defined')|groupby('meta.group') %}
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            {{ group.grouper }}
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            {% for page in group.list %}
-              {% if current_user.is_authenticated or not page.meta['requires_login'] %}
-                {% if page.meta['navbar'] %}
-                  {% if page.meta['route'] %}
-                    <a class="dropdown-item" href="{{ url_for(page.meta['route'], path=page.path) }}">{{ page.title }}</a>
-                  {% else %}
-                    <a class="dropdown-item" href="{{ url_for('path.page', path=page.path) }}">{{ page.title }}</a>
-                  {% endif %}
+      {% set visible_pages = group.list|selectattr('meta.navbar')|list if current_user.is_authenticated or not group.list|selectattr('meta.requires_login', 'equalto', true)|list else [] %}
+      {% if visible_pages|length > 0 %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ group.grouper }}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              {% for page in visible_pages %}
+                {% if page.meta['route'] %}
+                  <a class="dropdown-item" href="{{ url_for(page.meta['route'], path=page.path) }}">{{ page.title }}</a>
+                {% else %}
+                  <a class="dropdown-item" href="{{ url_for('path.page', path=page.path) }}">{{ page.title }}</a>
                 {% endif %}
-              {% endif %}
-            {% endfor %}
-          </div>
-        </li>
+              {% endfor %}
+            </div>
+          </li>
+        {% endif %}
       {% endfor %}
     </ul>
     <ul class="navbar-nav ml-auto">
