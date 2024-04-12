@@ -5,25 +5,29 @@
 
     {{ super() }}
 
-    {% if page.meta['form'] %}
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <form method="POST" enctype="multipart/form-data">
-                        {{ form.hidden_tag() }}
-                        <div class="custom-file">
-                            {{ form.file(class="custom-file-input", id="customFile") }}
-                            <label class="custom-file-label" for="customFile" id="customFileLabel">Choose file</label>
-                            {% for error in form.file.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </form>
+{% if page.meta['form'] %}
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <div class="custom-file">
+                        {{ form.file(class="custom-file-input", id="customFile") }}
+                        <label class="custom-file-label" for="customFile" id="customFileLabel">Choose file</label>
+                        {% for error in form.file.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-        </div>    
-    {% endif %}
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 
     {% if result %}
     <div class="container">
