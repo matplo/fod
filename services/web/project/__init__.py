@@ -18,14 +18,22 @@ from project.scripts.redis_store import RedisStoreApp
 from project.scripts.page_data import PageDataExtension
 from .config import update_dict_from_yaml
 
-
 import markdown
 import project.scripts.utils as putils
 
+from jinja2 import Environment, select_autoescape
 
 # Create the Flask app
 app = Flask(__name__)
-app.debug = False
+app.debug = True
+
+@app.template_filter('JTEST_FILTERED_is_string')
+def JTEST_FILTERED_is_string(value):
+    return isinstance(value, str)
+
+app.jinja_env.tests['JTEST_FILTERED_is_string'] = JTEST_FILTERED_is_string
+
+
 # Set up the login manager
 login_manager = LoginManager()
 login_manager.init_app(app)
