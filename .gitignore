@@ -10,3 +10,4 @@ users.yaml
 *.log
 **/external/*
 /services/web/project/config.yaml
+/services/web/project/config_*.yaml
