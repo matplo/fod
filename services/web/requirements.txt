@@ -24,5 +24,6 @@ Flask-Assets
 Flask-PageDown
 Flask-Images
 Flask-Redis
+flask-debugtoolbar
 pyyaml
 beautifulsoup4

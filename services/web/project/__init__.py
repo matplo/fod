@@ -6,6 +6,7 @@ from flask import (
     render_template_string,
     g,
 )
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_flatpages import FlatPages
@@ -25,7 +26,6 @@ from jinja2 import Environment, select_autoescape
 
 # Create the Flask app
 app = Flask(__name__)
-app.debug = True
 
 @app.template_filter('JTEST_FILTERED_is_string')
 def JTEST_FILTERED_is_string(value):
@@ -45,7 +45,7 @@ flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
 # note you can leave config.py alone and use config.yaml to override settings
 update_dict_from_yaml(app.config)
-
+app.debug = app.config['DEBUG']
 
 from project.scripts.custom_render import custom_render
 # Define the markdown renderer
@@ -69,6 +69,14 @@ redis_store.init_app(app)
 # Set up the pdata extension
 pdata_ext = PageDataExtension(app)
 
+
+# import models here
+from project.models.user import User
+# Register blueprints here
+# import project.scripts.utils as putils
+putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'), app)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -87,12 +95,6 @@ def before_request():
     g.pdata.last_qs = None
     g.config = app.config
 
-# import models here
-from project.models.user import User
-# Register blueprints here
-# import project.scripts.utils as putils
-putils.register_blueprints_from_dir(os.path.join(os.path.dirname(__file__), 'views'), app)
-
 
 @app.errorhandler(Exception)
 def handle_exception(e):
@@ -100,3 +102,20 @@ def handle_exception(e):
     error_number = getattr(e, 'code', 500)  # default to 500 if no 'code' attribute
     # pass the error to the template
     return render_template('error.html', error=e, error_number=error_number), error_number
+
+
+# setup debug toolbar
+app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['DEBUG_TB_PANELS'] = [
+    'flask_debugtoolbar.panels.versions.VersionDebugPanel',
+    'flask_debugtoolbar.panels.timer.TimerDebugPanel',
+    'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
+    'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
+    'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+    'flask_debugtoolbar.panels.sqlalchemy.SQLAlchemyDebugPanel',
+    'flask_debugtoolbar.panels.logger.LoggingPanel',
+    'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
+    # Comment out the next line to disable the "g" panel
+    'flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel',
+]
+toolbar = DebugToolbarExtension(app)
