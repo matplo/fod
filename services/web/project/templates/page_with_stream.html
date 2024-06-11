@@ -22,7 +22,8 @@
         <h5 class="modal-title" id="streamModalLabel">Processing...</h5>
       </div>
       <div class="modal-body">
-        Time elapsed: <a id="counter"></a>s.
+        Time elapsed: <a id="counter"></a>s<br>
+        Last update: <a id="lastUpdate"></a>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" id="stopButton">Stop</button>
@@ -39,6 +40,7 @@
     const streamModal = $('#streamModal');
 		var pollCount = 0;  // Declare a counter variable
     const counterElement = document.getElementById('counter');
+    var lastUpdateElement = document.getElementById('lastUpdate');
 
     // Show the modal immediately when the page loads
     $(document).ready(function() {
@@ -60,10 +62,13 @@ var intervalId = setInterval(function() {
         .then(data => {
             // Update the <pre> element with the data
             outputElement.textContent = data;
-						// Update the counter element with the current value of the counter variable
-						counterElement.textContent = pollCount++;
+            // Scroll to the bottom of the output element
+            outputElement.scrollTop = outputElement.scrollHeight;
             // Check the last line of the data
             var lastLine = data.trim().split('\n').pop();
+            // Update the counter element with the current value of the counter variable
+            counterElement.textContent = pollCount++;
+            lastUpdateElement.textContent = lastLine;
             if (lastLine.includes('#end')) {
                 // If the last line contains '#end', clear the interval and close the connection
                 clearInterval(intervalId);
