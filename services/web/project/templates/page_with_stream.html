@@ -4,6 +4,11 @@
 
 <div class="container">
     {{ page.html | safe }}
+    {% if return_url %}
+        <a href="{{ return_url.url }}" class="btn btn-light" role="button">{{ return_url.text }}</a>
+    {% else %}
+        No return landing page specified. <br>
+    {% endif %}
 </div>
 
 {% if page.meta['stream'] %}

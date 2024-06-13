@@ -84,13 +84,23 @@ def stream(path='stream'):
     page = flatpages.get_or_404(path)
     template = page.meta.get('template', 'page.html')
     variable = request.args.get('q', None)
+    _ret_url = request.args.get('returl', None)
+    _ret_path = request.args.get('retpath', None)
     if variable is None or len(variable) == 0:
         return redirect(url_for('execs.batch', q='No command provided'))
     else:
         cmnd_output_file, _ = process_input(variable)
         time.sleep(0.1)  # sleep briefly before trying to stream
         stream_source = f'/stream_file?q={cmnd_output_file}'
-    return render_template(template, page=page, stream_source=stream_source)
+        return_url = {}
+        if _ret_url is None or _ret_path is None:
+            return_url['url'] = url_for('path.page', path='query')
+            return_url['text'] = 'Return to Query Page'
+        else:
+            return_url['url'] = url_for(_ret_url, path=_ret_path, q=cmnd_output_file)
+            # return_url['text'] = _ret_path
+            return_url['text'] = f'Return to {return_url["url"]}'
+    return render_template(template, page=page, stream_source=stream_source, return_url=return_url)
 
 
 @bp.route('/stream_file')
