@@ -6,9 +6,9 @@ requires_login: True
 group: info
 ---
 
-# Welcome to My Example Page
+# Welcome to An Example Page
 
-This is some **Markdown** content. You can write Markdown here and Flask-FlatPages will render it.
+This is some **Markdown** content. Write Markdown here and Flask-FlatPages will render it.
 
 # This is another section 
 
