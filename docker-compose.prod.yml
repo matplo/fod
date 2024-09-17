@@ -12,7 +12,7 @@ services:
       - media_volume:/home/app/web/project/media
       - pages_volume:/home/app/web/project/pages
       - templates_volume:/home/app/web/project/templates
-      # - tmp_volume:/tmp
+      - /tmp/fodexchange:/mnt/exchange
     expose:
       - 5000
     env_file:
