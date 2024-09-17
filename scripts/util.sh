@@ -261,3 +261,23 @@ function add_dyldpath()
 }
 export -f add_dyldpath
 
+# Function to check if a specific flag is within $@
+function check_flag() {
+    local flag="$1"
+    shift
+    for arg in "$@"; do
+        if [ "$arg" == "$flag" ]; then
+            echo $flag
+            return
+        fi
+    done
+    echo ""
+}
+
+# Example usage of the function
+# force_flag=$(check_flag "--force" "$@")
+# if [ ! -z ${force_flag} ]; then
+## if [ "$force_flag" == "true" ]; then
+#     echo "Force flag is set"
+#     # Add your logic here for when --force is present
+# fi
