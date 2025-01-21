@@ -5,4 +5,5 @@ cd ${FOD_DIR}
 source ${FOD_DIR}/scripts/util.sh
 separator "${BASH_SOURCE}"
 
-docker exec -it flask-on-docker_nginx_1 /bin/bash
+# docker exec -it fod_nginx /bin/bash
+docker-compose -f docker-compose.prod.yml exec nginx /bin/bash
