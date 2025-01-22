@@ -73,6 +73,8 @@ cp /etc/letsencrypt/live/<yourdomain.com>/cert.pem <wherefod>/fod/certificates/
 cp /etc/letsencrypt/live/<yourdomain.com>/privkey.pem <wherefod>/fod/certificates/
 ```
 
+- note, you may want to use `.../fullchain.pem` as `cert.pem` for `.../fod/certificates/` and/or modify the `services/nginx/nginx.conf`
+
 ### disable the port 80
 
 - disable the 80:80 in the .yml file
