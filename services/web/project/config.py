@@ -12,7 +12,7 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_FOLDER = f"{os.getenv('APP_FOLDER')}/project/static"
     MEDIA_FOLDER = f"{os.getenv('APP_FOLDER')}/project/media"
-    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'fenced_code']
+    FLATPAGES_MARKDOWN_EXTENSIONS = ['codehilite', 'fenced_code', 'tables', 'smarty', 'toc']
     TEMPLATE_FOLDER = f"{os.getenv('APP_FOLDER')}/project/templates"
     FLATPAGES_ROOT = f"{os.getenv('APP_FOLDER')}/project/pages"
     FLATPAGES_EXTENSION = ".md"

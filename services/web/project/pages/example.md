@@ -10,6 +10,11 @@ group: info
 
 This is some **Markdown** content. Write Markdown here and Flask-FlatPages will render it.
 
+| Left   | Center | Right  |
+|:-------|:------:|-------:|
+| a      |   b    |     c  |
+
+
 # This is another section 
 
 - with an image in it
