@@ -5,8 +5,6 @@ cd ${FOD_DIR}
 source ${FOD_DIR}/scripts/util.sh
 separator "${BASH_SOURCE}"
 
-docker logs ${web_container_name}
-docker logs ${nginx_container_name}
-
-docker exec -it ${nginx_container_name} /bin/cat /var/log/nginx/access.log
+docker-compose -f docker-compose.prod.yml logs web
+docker-compose -f docker-compose.prod.yml logs nginx
 

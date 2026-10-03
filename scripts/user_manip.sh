@@ -9,8 +9,7 @@ docker-compose -f docker-compose.prod.yml exec web python user_manip.py $@
 
 if [[ $@ =~ "add" ]] || [[ $@ =~ "delete" ]] || [[ $@ =~ "update" ]]; then
 	if [[ $@ =~ "-u" ]] || [[ $@ =~ "--username" ]]; then
-		echo_warning "Recreating database"
-		docker-compose -f docker-compose.prod.yml exec web python manage.py create_db
+		echo_info "Syncing database with users.yaml"
 		docker-compose -f docker-compose.prod.yml exec web python manage.py seed_db
 	fi
 fi

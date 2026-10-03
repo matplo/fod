@@ -10,8 +10,6 @@ services:
       - ./users.yaml:/home/app/web/users.yaml
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
-      - pages_volume:/home/app/web/project/pages
-      - templates_volume:/home/app/web/project/templates
       - /tmp/fodexchange:/mnt/exchange
     expose:
       - 5000
@@ -29,11 +27,8 @@ services:
 
   redis:
     image: redis:latest
-    #ports:
-    #  - 6379:6379
     volumes:
       - redis_data:/data
-      # - tmp_volume:/tmp
 
   nginx:
     build: ./services/nginx
@@ -41,20 +36,13 @@ services:
       - ./certificates:/etc/nginx/ssl
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
-      - pages_volume:/home/app/web/project/pages
-      - templates_volume:/home/app/web/project/templates
     ports:
-      # - 1337:80
-      # - 80:80
+      - 80:80
       - 443:443
     depends_on:
       - web
 
 volumes:
-  postgres_data_prod:
   static_volume:
   media_volume:
-  pages_volume:
-  templates_volume:
   redis_data:
-  # tmp_volume:

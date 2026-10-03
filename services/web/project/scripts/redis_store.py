@@ -94,21 +94,26 @@ class RedisStoreExecFiles:
         _dict = self.redis_store.hgetall('files')
         _files = []
         for k in _dict:
-            _file = _dict[k].decode()
-            if _file is not None:
-                if _file.verify():
-                    _files.append(_file.as_dict())
+            raw_val = _dict[k]
+            if raw_val is not None:
+                try:
+                    _file = FileStat(init_json=raw_val.decode())
+                    if _file.verify():
+                        _files.append(_file.as_dict())
+                except Exception as e:
+                    logger.warning(f"Error parsing redis file entry {k}: {e}")
         return _files
 
     def get_files_list(self):
         _files = []
         for k in self.redis_store.hkeys('files'):
-            _file = self.get_file(k.decode())
-            if _file is not None:
-                if _file.verify():
-                    # _files.append(_file.as_dict())
+            try:
+                _file = self.get_file(k.decode() if isinstance(k, bytes) else k)
+                if _file is not None and _file.verify():
                     _files.append(_file)
-        _files.sort(key=lambda x: x.mtime, reverse=True)
+            except Exception as e:
+                logger.warning(f"Error reading redis file entry {k}: {e}")
+        _files.sort(key=lambda x: getattr(x, 'mtime', 0), reverse=True)
         return _files
 
     def add_file(self, filename, pid=None):
@@ -118,8 +123,9 @@ class RedisStoreExecFiles:
         return self.get_file(filename)
 
     def get_file(self, filename):
-        _file_json = self.redis_store.hget('files', filename).decode()
-        if _file_json is not None:
+        raw = self.redis_store.hget('files', filename)
+        if raw is not None:
+            _file_json = raw.decode() if isinstance(raw, bytes) else raw
             _file = FileStat(init_json=_file_json)
             return _file
         return None

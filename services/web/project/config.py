@@ -22,15 +22,33 @@ class Config(object):
             'linenums': True
         }
     }
-    SECRET_KEY = 'TEST_APP_SECRET_KEY'
+    SECRET_KEY = os.getenv('SECRET_KEY', 'TEST_APP_SECRET_KEY')
     REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379/0')
     # SERVER_NAME = 'localhost:1337' - not needed with ProxyFix
-    WEB_TITLE = 'Test App'
-    WEB_DESCRIPTION = 'A test app'
+    WEB_TITLE = os.getenv('WEB_TITLE', 'FOD Web')
+    WEB_DESCRIPTION = os.getenv('WEB_DESCRIPTION', 'Flask on Docker App')
     APP_YAML_CONFIG = f"{os.getenv('APP_FOLDER')}/project/config.yaml"
     BOOTSTRAP_SERVE_LOCAL = False
 
 
 def update_dict_from_yaml(d, yml=Config.APP_YAML_CONFIG):
-    with open(yml, 'r') as f:
-        d.update(yaml.safe_load(f))
+    """Load base YAML config and any override YAMLs from the config.d drop-in directory."""
+    if os.path.isfile(yml):
+        with open(yml, 'r') as f:
+            base_conf = yaml.safe_load(f)
+            if base_conf:
+                d.update(base_conf)
+
+    # Check for drop-in modular configs in project/config.d/*.yaml
+    config_d = os.path.join(os.path.dirname(yml), 'config.d')
+    if os.path.isdir(config_d):
+        for fname in sorted(os.listdir(config_d)):
+            if fname.endswith(('.yaml', '.yml')):
+                extra_path = os.path.join(config_d, fname)
+                try:
+                    with open(extra_path, 'r') as f:
+                        mod_conf = yaml.safe_load(f)
+                        if mod_conf:
+                            d.update(mod_conf)
+                except Exception as e:
+                    print(f"Warning: Failed to load modular config {extra_path}: {e}")

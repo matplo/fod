@@ -2,7 +2,7 @@
 
 import subprocess
 import shlex
-from tempfile import mktemp
+import tempfile
 import multiprocessing
 import argparse
 import os
@@ -33,10 +33,13 @@ def get_link_button(fname, text):
 
 
 def process_input(command, link=False):
+    if not command:
+        return "", None
     fout_dir = os.path.join(g.config["STATIC_FOLDER"], 'proc_out')
     if not os.path.exists(fout_dir):
-        os.makedirs(fout_dir)
-    foutname = mktemp(dir=fout_dir)
+        os.makedirs(fout_dir, exist_ok=True)
+    fd, foutname = tempfile.mkstemp(dir=fout_dir, prefix='proc_', suffix='.log')
+    os.close(fd)
     # relhttp = foutname.replace(g.config["STATIC_FOLDER"], 'static')
     with open(foutname, 'w') as fout:
         mtime = os.path.getmtime(foutname)
