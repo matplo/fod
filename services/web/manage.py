@@ -53,6 +53,10 @@ def seed_db():
             print(f"Error syncing user {user.get('username')}: {e}")
     # Clean up users no longer in users.yaml
     valid_usernames = {u['username'] for u in users_list}
+    if not valid_usernames:
+        print("No users configured in users.yaml; skipping cleanup.")
+        db.session.commit()
+        return
     for db_user in User.query.all():
         if db_user.username not in valid_usernames:
             db.session.delete(db_user)

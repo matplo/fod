@@ -15,7 +15,7 @@ from flask import (
 from project.forms.base_forms import MyForm
 from project.scripts.process_input import process_input
 from project import flatpages, g
-from werkzeug.utils import secure_filename
+from werkzeug.utils import secure_filename, safe_join
 from project.forms.base_forms import UploadForm
 import time
 import subprocess
@@ -111,12 +111,20 @@ def stream_file():
         return "No file specified", 400
 
     # Ensure path stays strictly within allowed directories (proc_out or static)
+    static_root = os.path.abspath(app.config.get("STATIC_FOLDER", ""))
     allowed_dirs = [
-        os.path.abspath(os.path.join(app.config.get("STATIC_FOLDER", ""), "proc_out")),
-        os.path.abspath(app.config.get("STATIC_FOLDER", "")),
+        os.path.abspath(os.path.join(static_root, "proc_out")),
+        static_root,
     ]
-    resolved = os.path.abspath(filename)
-    if not any(resolved.startswith(adir) for adir in allowed_dirs) or not os.path.isfile(resolved):
+    resolved = None
+    for adir in allowed_dirs:
+        candidate = safe_join(adir, filename)
+        if candidate is not None:
+            resolved = os.path.realpath(candidate)
+            if os.path.commonpath([resolved, adir]) == adir:
+                break
+            resolved = None
+    if resolved is None or not os.path.isfile(resolved):
         logger.warning(f"Unauthorized or invalid stream_file request for path: {filename}")
         return "Access denied or file not found", 403
 
@@ -142,13 +150,13 @@ def execute_script():
             yield "data: Empty command\n\n"
             return
 
-        # Security: confine execution to scripts inside project/scripts or standard python
+        # Security: confine execution to scripts inside project/scripts
         app_folder = os.getenv("APP_FOLDER", "/home/app/web")
         allowed_dirs = [
             os.path.abspath(os.path.join(app_folder, "project", "scripts")),
         ]
         cmd_path = os.path.abspath(args[0])
-        if not any(cmd_path.startswith(d) for d in allowed_dirs):
+        if not any(os.path.commonpath([cmd_path, d]) == d for d in allowed_dirs):
             yield f"data: Execution denied: command {args[0]} not in authorized directory\n\n"
             return
 
