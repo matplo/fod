@@ -14,7 +14,7 @@ if [[ -z "$(user_manip list)" ]]; then
 	user_manip add --username test --password test --email test@test.com
 fi
 
-echo_warning "Recreating database"
+echo_info "Ensuring database tables and syncing users"
 docker-compose -f docker-compose.prod.yml exec web python manage.py create_db
 docker-compose -f docker-compose.prod.yml exec web python manage.py seed_db
 

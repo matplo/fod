@@ -106,39 +106,65 @@ def stream(path='stream'):
 @bp.route('/stream_file')
 @login_required
 def stream_file():
-    def generate():
-        filename = request.args.get('q', None)
-        with open(filename, 'r') as f:
-            lines = f.readlines()
-        for line in lines:
-            yield f"{line}"
-    response = Response(stream_with_context(generate()), mimetype='text/event-stream')
-    response.implicit_sequence_conversion = True
-    return response
+    filename = request.args.get('q', None)
+    if not filename:
+        return "No file specified", 400
+
+    # Ensure path stays strictly within allowed directories (proc_out or static)
+    allowed_dirs = [
+        os.path.abspath(os.path.join(app.config.get("STATIC_FOLDER", ""), "proc_out")),
+        os.path.abspath(app.config.get("STATIC_FOLDER", "")),
+    ]
+    resolved = os.path.abspath(filename)
+    if not any(resolved.startswith(adir) for adir in allowed_dirs) or not os.path.isfile(resolved):
+        logger.warning(f"Unauthorized or invalid stream_file request for path: {filename}")
+        return "Access denied or file not found", 403
+
+    try:
+        with open(resolved, 'r', errors='replace') as f:
+            content = f.read()
+        return Response(content, mimetype='text/plain')
+    except Exception as e:
+        logger.error(f"Error reading stream file {resolved}: {e}")
+        return f"Error reading file: {e}", 500
 
 
 @bp.route('/execute_script')
 @login_required
 def execute_script():
     def generate():
-        # Command to execute the Python script
         command = request.args.get('q', None)
         if command is None:
-            yield 'No command provided'
+            yield "data: No command provided\n\n"
             return
-        # Setup the process to capture stdout and stderr
-        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        # Stream both stdout and stderr
-        while True:
-            output = process.stdout.readline()
-            if output == b'' and process.poll() is not None:
-                break
-            if output:
-                yield f"data: {output.decode()}\n\n"
-        # After the process ends, check and stream stderr if there was any error
-        error = process.stderr.read().decode()
-        if error:
-            yield f"data: ERROR: {error}\n\n"
+        args = shlex.split(command)
+        if not args:
+            yield "data: Empty command\n\n"
+            return
+
+        # Security: confine execution to scripts inside project/scripts or standard python
+        app_folder = os.getenv("APP_FOLDER", "/home/app/web")
+        allowed_dirs = [
+            os.path.abspath(os.path.join(app_folder, "project", "scripts")),
+        ]
+        cmd_path = os.path.abspath(args[0])
+        if not any(cmd_path.startswith(d) for d in allowed_dirs):
+            yield f"data: Execution denied: command {args[0]} not in authorized directory\n\n"
+            return
+
+        try:
+            process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            while True:
+                output = process.stdout.readline()
+                if output == b'' and process.poll() is not None:
+                    break
+                if output:
+                    yield f"data: {output.decode(errors='replace')}\n\n"
+            error = process.stderr.read().decode(errors='replace')
+            if error:
+                yield f"data: ERROR: {error}\n\n"
+        except Exception as ex:
+            yield f"data: Process error: {str(ex)}\n\n"
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 

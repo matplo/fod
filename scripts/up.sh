@@ -30,7 +30,7 @@ fi
 
 if [ "$what" == "dev" ]; then
 	if [ "$2" == "build" ]; then
-		docker-compose down -v
+		docker-compose down
 		docker-compose up -d --build
 	else
 		docker-compose down
@@ -38,7 +38,7 @@ if [ "$what" == "dev" ]; then
 	fi
 elif [ "$what" == "prod" ]; then
 	if [ "$2" == "build" ]; then
-		docker-compose -f docker-compose.prod.yml down -v
+		docker-compose -f docker-compose.prod.yml down
 		docker-compose -f docker-compose.prod.yml up -d --build
 		${FOD_DIR}/scripts/make_db_prod.sh
 	else

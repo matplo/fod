@@ -4,25 +4,27 @@ cd ${FOD_DIR}
 OS=$(uname)
 DOCKER_VERSION=$(docker -v | cut -d ' ' -f3 | cut -d ',' -f1)
 
-web_container_id=$(docker ps -qf "name=web")
-if [ ! -z ${web_container_id} ]; then
-	web_container_name=$(docker ps | grep ${web_container_id} | awk '{print $NF}')
-fi
+function load_container_info() {
+	web_container_id=$(docker ps -qf "name=web" 2>/dev/null)
+	if [ -n "${web_container_id}" ]; then
+		web_container_name=$(docker ps --filter "id=${web_container_id}" --format "{{.Names}}")
+	fi
 
-nginx_container_id=$(docker ps -qf "name=nginx")
-if [ ! -z ${nginx_container_id} ]; then
-	nginx_container_name=$(docker ps | grep ${nginx_container_id} | awk '{print $NF}')
-fi
+	nginx_container_id=$(docker ps -qf "name=nginx" 2>/dev/null)
+	if [ -n "${nginx_container_id}" ]; then
+		nginx_container_name=$(docker ps --filter "id=${nginx_container_id}" --format "{{.Names}}")
+	fi
 
-redis_container_id=$(docker ps -qf "name=redis")
-if [ ! -z ${redis_container_id} ]; then
-	redis_container_name=$(docker ps | grep ${redis_container_id} | awk '{print $NF}')
-fi
+	redis_container_id=$(docker ps -qf "name=redis" 2>/dev/null)
+	if [ -n "${redis_container_id}" ]; then
+		redis_container_name=$(docker ps --filter "id=${redis_container_id}" --format "{{.Names}}")
+	fi
 
-db_container_id=$(docker ps -qf "name=db")
-if [ ! -z ${db_container_id} ]; then
-	db_container_name=$(docker ps | grep ${db_container_id} | awk '{print $NF}')
-fi
+	db_container_id=$(docker ps -qf "name=db" 2>/dev/null)
+	if [ -n "${db_container_id}" ]; then
+		db_container_name=$(docker ps --filter "id=${db_container_id}" --format "{{.Names}}")
+	fi
+}
 
 function abspath()
 {

@@ -45,7 +45,7 @@ flatpages = FlatPages(app)
 app.config.from_object("project.config.Config")
 # note you can leave config.py alone and use config.yaml to override settings
 update_dict_from_yaml(app.config)
-app.debug = app.config['DEBUG']
+app.debug = app.config.get('DEBUG', False)
 
 from project.scripts.custom_render import custom_render
 # Define the markdown renderer
@@ -118,4 +118,6 @@ app.config['DEBUG_TB_PANELS'] = [
     # Comment out the next line to disable the "g" panel
     'flask_debugtoolbar.panels.config_vars.ConfigVarsDebugPanel',
 ]
-toolbar = DebugToolbarExtension(app)
+if app.debug:
+    toolbar = DebugToolbarExtension(app)
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
