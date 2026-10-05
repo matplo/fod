@@ -34,6 +34,7 @@ services:
     build: ./services/nginx
     volumes:
       - ./certificates:/etc/nginx/ssl
+      - ./certificates/certbot/www:/var/www/certbot:ro
       - static_volume:/home/app/web/project/static
       - media_volume:/home/app/web/project/media
     ports:

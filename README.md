@@ -25,61 +25,54 @@ prod.sh up prod build
 - hint: use tab after typing `prod.sh` - some predefined util scripts/commands available
     - for example: `prod.sh hot_update` puts things into web image and restarts it - updates available pronto
 
-## Renew certificates - quick
+## SSL/TLS Certificates & Automatic Renewal
 
-### enable port 80 in the nginx
+FOD uses Let's Encrypt certificates managed via Dockerized Certbot and Nginx with **zero downtime**. Port 80 automatically answers ACME HTTP-01 challenges under `/.well-known/acme-challenge/` and redirects all regular web traffic to HTTPS.
 
-- edit the nginx configuration in .yml
+### 1. Renew On-Demand (Single Command)
 
-```
-nginx:
-  build: ./services/nginx
-  volumes:
-    - ./certificates:/etc/nginx/ssl
-    - static_volume:/home/app/web/project/static
-    - media_volume:/home/app/web/project/media
-    - pages_volume:/home/app/web/project/pages
-    - templates_volume:/home/app/web/project/templates
-  ports:
-    - 80:80  # Added to enable HTTP challenge
-    - 443:443
-  depends_on:
-    - web
+On your deployment server, run:
+
+```bash
+fod renew_cert <yourdomain.com> <youremail@example.com>
 ```
 
-### restart
-
-- `fod restart`
-
-### run certbot (host)
-
-- then in the host (not within docker):
-
-```
-sudo certbot certonly --standalone -d yourdomain.com
+Example:
+```bash
+fod renew_cert ploskon.org admin@ploskon.org
 ```
 
-- note, you may need to install certbot
+Or define `DOMAIN` and `CERT_EMAIL` in `.env.prod`:
+```bash
+DOMAIN=ploskon.org
+CERT_EMAIL=admin@ploskon.org
 ```
-sudo apt update
-sudo apt install certbot python3-certbot-nginx
-```
-
-### copy the new certificates
-- copy the certs where they belong (from `/etc/letsencrypt/live` in your host; note will need root priv; remember chown then...)
-
-```
-cp /etc/letsencrypt/live/<yourdomain.com>/cert.pem <wherefod>/fod/certificates/
-cp /etc/letsencrypt/live/<yourdomain.com>/privkey.pem <wherefod>/fod/certificates/
+Then simply run:
+```bash
+fod renew_cert
 ```
 
-- note, you may want to use `.../fullchain.pem` as `cert.pem` for `.../fod/certificates/` and/or modify the `services/nginx/nginx.conf`
+This command:
+1. Runs an ephemeral `certbot/certbot` Docker container to solve the HTTP challenge via Nginx (`/var/www/certbot`).
+2. Copies `fullchain.pem` and `privkey.pem` into `./certificates/` with secure permissions.
+3. Gracefully reloads Nginx (`nginx -s reload`) with **zero downtime** and no container restarts.
 
-### disable the port 80
+To force immediate renewal:
+```bash
+fod renew_cert --force
+```
 
-- disable the 80:80 in the .yml file
+### 2. Fully Automated Renewal (Cron)
 
-## restart
+Add a monthly cron job on your deployment host to automatically renew certificates before they expire:
 
-- `fod restart`
+```bash
+crontab -e
+```
+
+Add the following entry (runs at 03:00 on the 1st of every month):
+```cron
+0 3 1 * * /path/to/fod/scripts/fod.sh renew_cert >> /var/log/fod_cert_renew.log 2>&1
+```
+Certbot will check certificate expiration and only renew when within 30 days of expiry.
 
