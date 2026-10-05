@@ -3,7 +3,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-USER_OPT=""
+USER_OPT="-u app"
 if [[ "${1:-}" == "--root" || "${1:-}" == "-r" ]]; then
   USER_OPT="-u 0"
 fi

@@ -35,8 +35,8 @@ FROM python:3.11-slim-bookworm
 # create directory for the app user
 RUN mkdir -p /home/app
 
-# create the app user
-RUN addgroup --system app && adduser --system --group app
+# create the app user with home /home/app
+RUN addgroup --system app && adduser --system --group --home /home/app app
 
 # create the appropriate directories
 ENV HOME=/home/app
@@ -46,7 +46,7 @@ WORKDIR $APP_HOME
 
 # install dependencies
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends netcat-traditional && \
+    apt-get install -y --no-install-recommends netcat-traditional gosu && \
     rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/src/app/wheels /wheels
 COPY --from=builder /usr/src/app/requirements.txt .
@@ -62,8 +62,5 @@ COPY . $APP_HOME
 # chown all the files to the app user
 RUN chown -R app:app /home/app
 
-# change to the app user
-USER app
-
-# run entrypoint.prod.sh
+# run entrypoint.prod.sh (handles permissions and privilege drop to app user)
 ENTRYPOINT ["/home/app/web/entrypoint.prod.sh"]
