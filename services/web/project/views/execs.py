@@ -116,7 +116,10 @@ def stream_file():
         os.path.abspath(app.config.get("STATIC_FOLDER", "")),
     ]
     resolved = os.path.abspath(filename)
-    if not any(resolved.startswith(adir) for adir in allowed_dirs) or not os.path.isfile(resolved):
+    if not any(
+        resolved == adir or resolved.startswith(adir + os.sep)
+        for adir in allowed_dirs
+    ) or not os.path.isfile(resolved):
         logger.warning(f"Unauthorized or invalid stream_file request for path: {filename}")
         return "Access denied or file not found", 403
 
@@ -142,13 +145,13 @@ def execute_script():
             yield "data: Empty command\n\n"
             return
 
-        # Security: confine execution to scripts inside project/scripts or standard python
+        # Security: confine execution to scripts inside project/scripts
         app_folder = os.getenv("APP_FOLDER", "/home/app/web")
         allowed_dirs = [
             os.path.abspath(os.path.join(app_folder, "project", "scripts")),
         ]
         cmd_path = os.path.abspath(args[0])
-        if not any(cmd_path.startswith(d) for d in allowed_dirs):
+        if not any(cmd_path == d or cmd_path.startswith(d + os.sep) for d in allowed_dirs):
             yield f"data: Execution denied: command {args[0]} not in authorized directory\n\n"
             return
 
