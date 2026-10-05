@@ -2,6 +2,7 @@ Flask
 Flask-SQLAlchemy
 gunicorn
 psycopg2-binary
+psycopg[binary]
 bootstrap-flask
 Flask-FlatPages
 Flask-wtf

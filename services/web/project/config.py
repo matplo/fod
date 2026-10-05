@@ -7,8 +7,19 @@ if os.getenv('APP_FOLDER') is None:
     os.environ['APP_FOLDER'] = os.path.dirname(basedir)
 
 
+def _normalize_db_url(url):
+    if not url:
+        return "sqlite://"
+    # SQLAlchemy 2.1+ defaults postgresql:// to psycopg (v3). Map to psycopg2 if no driver explicitly specified.
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg2://", 1)
+    if url.startswith("postgresql://") and not url.startswith("postgresql+"):
+        return url.replace("postgresql://", "postgresql+psycopg2://", 1)
+    return url
+
+
 class Config(object):
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
+    SQLALCHEMY_DATABASE_URI = _normalize_db_url(os.getenv("DATABASE_URL", "sqlite://"))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     STATIC_FOLDER = f"{os.getenv('APP_FOLDER')}/project/static"
     MEDIA_FOLDER = f"{os.getenv('APP_FOLDER')}/project/media"
