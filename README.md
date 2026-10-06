@@ -76,3 +76,47 @@ Add the following entry (runs at 03:00 on the 1st of every month):
 ```
 Certbot will check certificate expiration and only renew when within 30 days of expiry.
 
+## Adding Extras (Modular Add-ons)
+
+FOD supports drop-in modular add-ons (such as `inspireq`, `lblpmp`, `logview`, `sandbox`, `ploskon.org`) managed via the companion repository [`fod-extras`](https://github.com/matplo/fod-extras).
+
+### 1. Set `FOD_DIR` and inspect available modules
+
+From your `fod-extras` directory:
+
+```bash
+export FOD_DIR="/path/to/fod"
+
+# List available modules and their installation status
+./manage_extras.sh list
+
+# Show detailed component status
+./manage_extras.sh status
+```
+
+### 2. Add or Remove Modules
+
+```bash
+# Install and activate a module
+./manage_extras.sh add lblpmp
+./manage_extras.sh add inspireq
+./manage_extras.sh add logview
+
+# Remove a module
+./manage_extras.sh remove lblpmp
+```
+
+Alternatively, direct convenience scripts are available in `fod-extras/`:
+- `./add_pmp.sh`
+- `./add_inspireq.sh`
+- `./add_logview.sh`
+- `./add_sandbox.sh`
+- `./add_ploskon.org.sh`
+- `./rm_external.sh <module>`
+
+When you install a module:
+1. Its views, forms, templates, static files, and scripts are copied into `project/<component>/external/<module>/`.
+2. Its drop-in configuration is installed to `project/config.d/<module>.yaml` (keeping the main `config.yaml` clean).
+3. If FOD is currently running, `manage_extras.sh` automatically calls `hot_update` to sync files into the running container, installs any Python dependencies, and restarts Gunicorn immediately.
+
+
