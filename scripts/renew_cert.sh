@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z "${FOD_DIR}" ] && echo "FOD_DIR not set" && exit 1
+FOD_DIR="${FOD_DIR:-$(cd "$(dirname "$0")/.." && pwd)}"
 cd "${FOD_DIR}"
 source "${FOD_DIR}/scripts/util.sh"
 separator "fod: renew_cert"
@@ -69,13 +69,42 @@ fi
 # Prepare webroot and cert storage directories
 WWW_DIR="${FOD_DIR}/certificates/certbot/www"
 CONF_DIR="${FOD_DIR}/certificates/certbot/conf"
-mkdir -p "${WWW_DIR}" "${CONF_DIR}"
+CERT_DEST="${FOD_DIR}/certificates"
+
+# Detect Docker Compose binary (docker compose vs docker-compose)
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD="docker-compose"
+else
+    COMPOSE_CMD=""
+fi
+
+# Ensure directories exist (with Docker fallback in case host directory has root ownership)
+if ! mkdir -p "${WWW_DIR}" "${CONF_DIR}" 2>/dev/null; then
+    docker run --rm \
+        --entrypoint sh \
+        -v "${CERT_DEST}:/certificates:rw" \
+        certbot/certbot -c "mkdir -p /certificates/certbot/www /certificates/certbot/conf && chmod -R a+rwx /certificates/certbot" 2>/dev/null || true
+fi
 
 # Ensure Nginx is running to serve the ACME challenge
 echo_info "[i] Verifying Nginx is running..."
-if ! docker compose -f docker-compose.prod.yml ps nginx | grep -q "Up"; then
+NGINX_RUNNING=0
+if [ -n "$COMPOSE_CMD" ]; then
+    if $COMPOSE_CMD -f docker-compose.prod.yml ps nginx 2>/dev/null | grep -qi "Up\|running"; then
+        NGINX_RUNNING=1
+    fi
+fi
+if [ "$NGINX_RUNNING" -eq 0 ] && docker ps --format '{{.Names}}' 2>/dev/null | grep -qi "nginx"; then
+    NGINX_RUNNING=1
+fi
+
+if [ "$NGINX_RUNNING" -eq 0 ]; then
     echo_warning "[w] Nginx is not running. Starting Nginx..."
-    docker compose -f docker-compose.prod.yml up -d nginx
+    if [ -n "$COMPOSE_CMD" ]; then
+        $COMPOSE_CMD -f docker-compose.prod.yml up -d nginx
+    fi
 fi
 
 echo_info "[i] Running Certbot in Docker (webroot ACME challenge)..."
@@ -92,33 +121,59 @@ docker run --rm \
     ${FORCE_ARG} \
     --keep-until-expiring
 
-CERT_SRC="${CONF_DIR}/live/${DOMAIN}"
-CERT_DEST="${FOD_DIR}/certificates"
+echo_info "[i] Installing certificates into ${CERT_DEST}/..."
+COPY_SUCCESS=0
+if docker run --rm \
+    --entrypoint sh \
+    -v "${CONF_DIR}:/etc/letsencrypt:rw" \
+    -v "${CERT_DEST}:/certificates:rw" \
+    certbot/certbot -c "
+        if [ -f /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ] && [ -f /etc/letsencrypt/live/${DOMAIN}/privkey.pem ]; then
+            cp -L /etc/letsencrypt/live/${DOMAIN}/fullchain.pem /certificates/fullchain.pem && \
+            cp -L /etc/letsencrypt/live/${DOMAIN}/fullchain.pem /certificates/cert.pem && \
+            cp -L /etc/letsencrypt/live/${DOMAIN}/privkey.pem /certificates/privkey.pem && \
+            if [ -f /etc/letsencrypt/live/${DOMAIN}/chain.pem ]; then
+                cp -L /etc/letsencrypt/live/${DOMAIN}/chain.pem /certificates/chain.pem
+            fi && \
+            chmod 644 /certificates/fullchain.pem /certificates/cert.pem && \
+            chmod 600 /certificates/privkey.pem && \
+            chmod -R a+rX /etc/letsencrypt 2>/dev/null || true
+            exit 0
+        else
+            exit 1
+        fi
+    "; then
+    COPY_SUCCESS=1
+fi
 
-if [ -f "${CERT_SRC}/fullchain.pem" ] && [ -f "${CERT_SRC}/privkey.pem" ]; then
-    echo_info "[i] Copying renewed certificates to ${CERT_DEST}/..."
-    cp -L "${CERT_SRC}/fullchain.pem" "${CERT_DEST}/fullchain.pem"
-    cp -L "${CERT_SRC}/fullchain.pem" "${CERT_DEST}/cert.pem"
-    cp -L "${CERT_SRC}/privkey.pem"   "${CERT_DEST}/privkey.pem"
-    if [ -f "${CERT_SRC}/chain.pem" ]; then
-        cp -L "${CERT_SRC}/chain.pem" "${CERT_DEST}/chain.pem"
+if [ "$COPY_SUCCESS" -eq 1 ]; then
+    echo_info "[i] Reloading Nginx configuration gracefully (zero downtime)..."
+    RELOADED=0
+    NGINX_CONTAINER=$(docker ps -qf "name=nginx" 2>/dev/null | head -n 1)
+    if [ -n "$NGINX_CONTAINER" ]; then
+        if docker exec "$NGINX_CONTAINER" nginx -s reload 2>/dev/null; then
+            RELOADED=1
+        fi
+    fi
+    if [ "$RELOADED" -eq 0 ] && [ -n "$COMPOSE_CMD" ]; then
+        if $COMPOSE_CMD -f docker-compose.prod.yml exec -T nginx nginx -s reload 2>/dev/null; then
+            RELOADED=1
+        fi
     fi
 
-    chmod 644 "${CERT_DEST}/fullchain.pem" "${CERT_DEST}/cert.pem"
-    chmod 600 "${CERT_DEST}/privkey.pem"
-
-    echo_info "[i] Reloading Nginx configuration gracefully (zero downtime)..."
-    docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload 2>/dev/null || \
-    docker-compose -f docker-compose.prod.yml exec -T nginx nginx -s reload 2>/dev/null || \
-    echo_warning "[w] Could not reload Nginx automatically. Run: fod restart"
+    if [ "$RELOADED" -eq 1 ]; then
+        echo_info "[i] Nginx reloaded successfully!"
+    else
+        echo_warning "[w] Could not reload Nginx automatically. Run: fod restart"
+    fi
 
     echo_info "[i] Certificate renewal complete!"
     if command -v openssl >/dev/null 2>&1; then
         echo_info "[i] Certificate validity:"
-        openssl x509 -in "${CERT_DEST}/cert.pem" -noout -subject -dates
+        openssl x509 -in "${CERT_DEST}/cert.pem" -noout -subject -dates 2>/dev/null || true
     fi
 else
-    echo_error "[e] Certificate files not found in ${CERT_SRC}"
+    echo_error "[e] Certificate files for ${DOMAIN} were not found in ${CONF_DIR}/live/${DOMAIN}"
     exit 1
 fi
 
